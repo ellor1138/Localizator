@@ -1,4 +1,4 @@
-<cfscript>
+﻿<cfscript>
 	component output=false {
 		
 		/*
@@ -447,12 +447,12 @@
 		 * @hint Get localizations from repository
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public query function getLocalizationsFromRepository(required string letter="all") {
+		public struct function getLocalizationsFromRepository(required string letter="all") {
 			var loc = {};
 			
 			loc.i = 0;
 			loc.repo = $initRepositoryFile();
-			loc.query = QueryNew("text,firstLetter", "VarChar,VarChar");
+			loc.qr = QueryNew("text,firstLetter", "VarChar,VarChar");
 			
 			// CHECK IF REPOSITORY FILE EXISTS
 			if ( FileExists(loc.repo.repository) ) {
@@ -464,14 +464,66 @@
 				if ( isStruct(loc.includeRepositoryFile) && StructCount(loc.includeRepositoryFile) ) {
 					for (loc.key IN loc.includeRepositoryFile) {
 						loc.i++;
-						QueryAddRow(loc.query);
-						QuerySetCell(loc.query, "text", loc.key, loc.i);
-						QuerySetCell(loc.query, "firstLetter", Left(loc.key,1), loc.i);
+						QueryAddRow(loc.qr);
+						QuerySetCell(loc.qr, "text", loc.key, loc.i);
+						QuerySetCell(loc.qr, "firstLetter", Left(loc.key,1), loc.i);
 					}
 				}
+				
+				if ( arguments.letter != "all" ) {
+					// GET DISTINCT FIRSTLETTERS FROM LOCALIZED TEXTS
+					loc.query = new query();
+					loc.query.setAttributes(
+						dbtype="query",
+						QoQ=loc.qr,
+						SQL="SELECT DISTINCT firstLetter FROM QoQ ORDER BY firstLetter ASC"
+					);
+					
+					loc.query = loc.query.execute();
+					loc.letters = loc.query.getResult();
+					
+					// GET ONLY TEXT STARTING WITH FORM.LETTER
+					loc.query = new query();
+					loc.query.setAttributes(
+						dbtype="query",
+						QoQ=loc.qr,
+						SQL="SELECT * FROM QoQ WHERE firstLetter = '#FORM.letter#' ORDER BY firstLetter ASC"
+					);
+				
+					loc.query = loc.query.execute();
+					loc.localizations = loc.query.getResult();
+				
+				} else {
+					// REORDER QUERY
+					loc.query = new query();
+					loc.query.setAttributes(
+						dbtype="query",
+						QoQ=loc.qr,
+						SQL="SELECT * FROM QoQ ORDER BY firstLetter ASC"
+					);
+				
+					loc.query = loc.query.execute();
+					loc.localizations = loc.query.getResult();
+					
+					// GET DISTINCT FIRSTLETTERS FROM LOCALIZED TEXTS
+					loc.query = new query();
+					loc.query.setAttributes(
+						dbtype="query",
+						QoQ=loc.qr,
+						SQL="SELECT DISTINCT firstLetter FROM QoQ ORDER BY firstLetter ASC"
+					);
+					
+					loc.query = loc.query.execute();
+					loc.letters = loc.query.getResult();
+					
+				}
+				
+				loc.results = {};
+				loc.results.letters = loc.letters;
+				loc.results.localizations = loc.localizations;
 			}
 			
-			return loc.query;
+			return loc.results;
 		}
 		
 		/* ---------------------------------------------------------------------------------------------------
@@ -590,14 +642,14 @@
 						FileWrite(loc.localesFilePath, loc.textLine, "utf-8");
 						
 						if ( loc.action == "update" ) {
-							loc.update = loc.update & GetLocaleDisplayName(loc.language, getLocale()) & " updated successfully.<br />";
+							loc.update = loc.update & "Localization file: " & GetLocaleDisplayName(loc.language, getLocale()) & " updated successfully.<br />";
 						
 						} else if ( loc.action == "delete" ) {
-							loc.update = "Text deleted successfully.";
+							loc.update = "Text deleted successfully in localization file(s).";
 						}
 					
 					} else {
-						loc.update = loc.update & GetLocaleDisplayName(loc.language, getLocale()) & " was not updated.<br />";
+						loc.update = loc.update & "Localization file: " & GetLocaleDisplayName(loc.language, getLocale()) & " was not updated.<br />";
 					}
 				}
 			}
