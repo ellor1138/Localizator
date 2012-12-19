@@ -105,7 +105,6 @@
 					</cfif>
 				</div>
 			</div>
-			
 		</cfoutput>
 	</body>
 </html>

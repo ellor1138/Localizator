@@ -9,7 +9,7 @@
 		
 		loc.plugin.author = "Simon Allard";
 		loc.plugin.name = "localizator";
-		loc.plugin.version = "1.0";
+		loc.plugin.version = "1.1";
 		loc.plugin.compatibility = "1.1.8";
 		
 		loc.config.isDB = "No";

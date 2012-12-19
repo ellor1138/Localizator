@@ -75,28 +75,30 @@
 		public string function l(required string text, string language) {
 			var loc = {};
 			
-			loc.bypass = true;
-			loc.text = arguments.text;
-			
+			// REPLACE DOUBLE CURLY BRACKET WITH SINGLE CURLY BRACKET
+			// --> Convention is to put dynamic text (variable) between single curly brackets.
+			// --> localizeme("{#Now()#}") will return {{ts '2012-12-14 13:38:04'}}
+			loc.text = ReplaceNoCase(ReplaceNoCase(arguments.text, "{{", "{"), "}}", "}");
+
 			// SET TRANSLATION LANGUAGE
 			if ( isDefined("arguments.language") && Len(arguments.language) ) {
 				loc.language = arguments.language; // Language passed by function
 			
-			} else if ( isDefined("application.wheels.localizatorLanguageSession") && isDefined("session") && StructKeyExists(session, get('localizatorLanguageSession')) && Len(session[get("localizatorLanguageSession")]) ) {
-				loc.language = session[get("localizatorLanguageSession")]; // Language from user session
-			
+			} else if ( isDefined("application.wheels.localizatorLanguageSession") && isStruct(session) && isDefined("session." & get('localizatorLanguageSession')) ) {
+				loc.language = StructGet("session." & get('localizatorLanguageSession')); // Language from user session
+
 			} else {
 				loc.language = get('localizatorLanguageDefault'); // Language from default settings
 			}
 
-			return localizeme(argumentCollection=loc);
+			return $initLocalization(argumentCollection=loc);
 		}
 		
 		/* ---------------------------------------------------------------------------------------------------
 		 * @hint Localizeme function (return localized text)
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public string function localizeme(required string text, string language, required boolean bypass=false) {
+		public string function localizeme(required string text, string language) {
 			var loc = {};
 
 			// REPLACE DOUBLE CURLY BRACKET WITH SINGLE CURLY BRACKET
@@ -104,21 +106,15 @@
 			// --> localizeme("{#Now()#}") will return {{ts '2012-12-14 13:38:04'}}
 			loc.text = ReplaceNoCase(ReplaceNoCase(arguments.text, "{{", "{"), "}}", "}");
 			
-			if ( arguments.bypass ) {
-				// BYPASS LANGUAGE CHECK BECAUSE ALREADY CHECKED
-				loc.language = arguments.language;
+			// SET TRANSLATION LANGUAGE
+			if ( isDefined("arguments.language") && Len(arguments.language) ) {
+				loc.language = arguments.language; // Language passed by function
+
+			} else if ( isDefined("application.wheels.localizatorLanguageSession") && isStruct(session) && isDefined("session." & get('localizatorLanguageSession')) ) {
+				loc.language = StructGet("session." & get('localizatorLanguageSession')); // Language from user session
 			
 			} else {
-				// SET TRANSLATION LANGUAGE
-				if ( isDefined("arguments.language") && Len(arguments.language) ) {
-					loc.language = arguments.language; // Language passed by function
-	
-				} else if ( isDefined("application.wheels.localizatorLanguageSession") && isDefined("session") && StructKeyExists(session, get('localizatorLanguageSession')) && Len(session[get("localizatorLanguageSession")]) ) {
-					loc.language = session[get("localizatorLanguageSession")]; // Language from user session
-				
-				} else {
-					loc.language = get('localizatorLanguageDefault'); // Language from default settings
-				}
+				loc.language = get('localizatorLanguageDefault'); // Language from default settings
 			}
 
 			return $initLocalization(argumentCollection=loc);
