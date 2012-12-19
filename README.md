@@ -31,7 +31,9 @@ Problems or issues with this plugin can be found at https://github.com/ellor1138
 * MSSQL Server 2008
 
 ## Installation
-Place this plugin into your /plugins directory of your ColdFusion on Wheels application. Reload your application using the Reload link in the footer and you'll now see a "localizator" link for you to use the plugin.
+1. Download the latest version of [Localizator-x.x.zip](http://cfwheels.org/plugins/listing/89) and place it into the plugins directory of your ColdFusion on Wheels application.
+2. Reload your application.
+3. Click on the "localizator" link in the wheels debug area to start using the plugin.
 
 ## Special Thanks
 Largely inspired by Raúl Riera's Localizer plugin. https://github.com/raulriera/Localizer
