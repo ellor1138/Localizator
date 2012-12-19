@@ -21,10 +21,10 @@
 					<p>This plugin offer a complete solution to add localization (translation) capabilities to your application.</p>
 					<h2>Benefits of using this plugin:</h2>
 					<ul class="small">
-						<li>Get text translation from a localization database or localization files.</li>
-						<li>Populate your localization database or localization files by "harvesting" the text of your application.</li>
-						<li>Use the editor to add translation to your localization database and localization files.</li>
-						<li>Generate localization files from your localization database.</li>
+						<li>Get text translation from a localization database or localization file(s).</li>
+						<li>Populate your localization database or localization file(s) by "harvesting" the text of your application.</li>
+						<li>Use the editor to add translation to your localization database and localization file(s).</li>
+						<li>Generate localization file(s) from your localization database.</li>
 					</ul>
 				</div>
 				
