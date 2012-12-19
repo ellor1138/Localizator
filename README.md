@@ -14,7 +14,7 @@ Localizator is a localization plugin for ColdFusion on Wheels. This plugin offer
 The latest version of this plugin can be found at the Github project page at https://github.com/ellor1138/Localizator
 
 ## Documentation
-Coming soon!
+Documentation for this project can be found at https://github.com/ellor1138/Localizator/wiki
 
 ## Issues
 Problems or issues with this plugin can be found at https://github.com/ellor1138/Localizator/issues

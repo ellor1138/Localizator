@@ -30,7 +30,7 @@
 					<div style="text-align:center;">
 						<form action="#loc.config.url###generate" method="post">
 							<input type="hidden" name="generator" value="1">
-							<input type="submit" value="Generate localization files" class="btn">
+							<input type="submit" value="Generate localization file(s)" class="btn">
 						</form>
 					</div>
 				</cfif>
