@@ -13,6 +13,8 @@
 			<dd>December 2012</dd>
 			<dt>Project home</dt>
 			<dd><a href="http://github.com/ellor1138/Localizator" target="_blank">http://github.com/ellor1138/Localizator</a></dd>
+			<dt>Documentation</dt>
+			<dd><a href="https://github.com/ellor1138/Localizator/wiki" target="_blank">https://github.com/ellor1138/Localizator/wiki</a></dd>
 			<dt>Find any bugs?</dt>
 			<dd>You can file an issue here:<br /><a href="https://github.com/ellor1138/Aquanote/issues" target="_blank">https://github.com/ellor1138/Localizator/issues</a></dd>
 			<dt>License</dt>
