@@ -2,6 +2,8 @@
 	<div class="tab-pane" id="Editor">
 		<ul>
 			<li>The editor let you enter text with their translation.</li>
+			<li>The text is saved to your database and/or localization files.</li>
+			<li>You can add, edit or delete text entries. This will update your database and your localization files.</li>
 			<li>You can add dynamic content in your text by adding "{variable}" as a placeholder.
 				<dl class="well well-small" style="display:inline-block; margin-bottom:0;">
 					<dt>In your database or localization files, this text entry:</dt>
@@ -12,8 +14,6 @@
 					<dd>Bonjour Bob!</dd>
 				</dl>
 			</li>
-			<li>The text is saved to your database and/or localization files.</li>
-			<li>You can edit, update and delete text entries. This will update your database and your localization files.</li>
 		</ul>
 		<ul>
 			<li>To use the editor with a database:
