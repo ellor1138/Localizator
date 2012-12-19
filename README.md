@@ -5,10 +5,10 @@
 Localizator is a localization plugin for ColdFusion on Wheels. This plugin offer a complete solution to add localization (translation) capabilities to your application.
 
 #### Benefits of using this plugin:
-* Get text translation from a localization database or localization files.
-* Populate your localization database or localization files by "harvesting" the text of your application.
-* Use the editor to add translation to your localization database and localization files.
-* Generate localization files from your localization database.
+* Get text translation from a localization database or localization file(s).
+* Populate your localization database or localization file(s) by "harvesting" the text of your application.
+* Use the editor to add translation to your localization database and localization file(s).
+* Generate localization file(s) from your localization database.
 
 ## The Latest Version
 * The latest version of this plugin can be found at the Github project page at https://github.com/ellor1138/Localizator
