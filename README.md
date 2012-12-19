@@ -2,7 +2,7 @@
 
 ## What is it?
 
-Localizator is a localization plugin for ColdFusion on Wheels. This plugin offer a complete solution to add localization capabilities to your application.
+Localizator is a localization plugin for ColdFusion on Wheels. This plugin offer a complete solution to add localization (translation) capabilities to your application.
 
 #### Benefits of using this plugin:
 * Get text translation from a localization database or localization files.

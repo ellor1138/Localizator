@@ -18,7 +18,7 @@
 				
 				<div class="hero-unit">
 					<h1>#capitalize(loc.plugin.name)# #loc.plugin.version#</h1>
-					<p>This plugin offer a complete solution to add localization capabilities to your application.</p>
+					<p>This plugin offer a complete solution to add localization (translation) capabilities to your application.</p>
 					<h2>Benefits of using this plugin:</h2>
 					<ul class="small">
 						<li>Get text translation from a localization database or localization files.</li>
