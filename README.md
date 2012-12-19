@@ -33,7 +33,7 @@ Problems or issues with this plugin can be found at https://github.com/ellor1138
 Place this plugin into your /plugins directory of your ColdFusion on Wheels application. Reload your application using the Reload link in the footer and you'll now see a "localizator" link for you to use the plugin.
 
 ## Special Thanks
-Largely inspired by RaÃºl Riera's Localizer plugin. https://github.com/raulriera/Localizer
+Largely inspired by Raúl Riera's Localizer plugin. https://github.com/raulriera/Localizer
 
 ## License
 Copyright 2012 Simon Allard
