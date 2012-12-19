@@ -69,7 +69,7 @@
 						
 						if ( formTextDB.save() ) {
 							// ADD TEXT TO LOCALIZATION FILES
-							loc.message.file = $addTextToFile(params.formTextDB);
+							loc.message.file = addTextToFile(params.formTextDB);
 							
 							loc.message.type = "success";
 							loc.message.formTextDB = "Text saved successfully";
@@ -182,7 +182,7 @@
 				// ADD TEXT TO LOCALIZATION FILES
 				if ( isDefined("params.formTextFile") && isDefined("params.formTextFile.text") && Len(params.formTextFile.text) ) {
 					// ADD TO LOCALIZATION FILES
-					loc.formTextFile = $addTextToFile(params.formTextFile);
+					loc.formTextFile = addTextToFile(params.formTextFile);
 					if ( isDefined("loc.formTextFile.found") ) {
 						loc.message.type = "error";
 						loc.message.formTextFile = "<strong><u>#loc.formTextFile.text#</u></strong> already in your localizations files";

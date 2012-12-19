@@ -152,7 +152,7 @@
 				}
 				
 				// ADD TEXT TO LOCALIZATION FILES
-				loc.localized["Files"] = $addTextToFile(loc.localize.text);
+				loc.localized["Files"] = addTextToFile(loc.localize.text);
 				loc.localized.text = loc.localized["Files"].text;
 				
 				// GET TRANSLATION FROM DATABASE OR LOCALIZATION FILES
@@ -217,11 +217,11 @@
 		 * @hint Add text & default language to file (repository and/or locales)
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public struct function $addTextToFile(required text) {
+		public struct function addTextToFile(required text) {
 			var loc = {};
 			var logConsole = {};
 			
-			logConsole.function = "$addTextToFile";
+			logConsole.function = "addTextToFile";
 			
 			loc.localized = {};
 			
@@ -378,7 +378,7 @@
 
 				for (var i IN loc.localizationsStruct) { 
         	loc.i += 1;
-					loc.localized[loc.i] = $addTextToFile(loc.localizationsStruct[loc.i]);
+					loc.localized[loc.i] = addTextToFile(loc.localizationsStruct[loc.i]);
         }
 			}
 			
