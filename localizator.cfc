@@ -133,9 +133,9 @@
 			loc.localize.original = arguments.text;
 			
 			// CHECK DATABASE AVAILABILITY (Datasource, Table, Column (language = en_US, en_CA, etc...))
-			loc.isDatabaseAvailable = $isDatabaseAvailable();
+			loc.isDatabaseAvailable = isDatabaseAvailable();
 			//loc.isDatabaseAvailable = false; // Uncomment to test localization files
-			loc.isDatabaseTableAvailable = $isDatabaseTableAvailable(loc.isDatabaseAvailable);
+			loc.isDatabaseTableAvailable = isDatabaseTableAvailable(loc.isDatabaseAvailable);
 			loc.isDatabaseLanguageAvailable = $isDatabaseLanguageAvailable(loc.isDatabaseTableAvailable, loc.localize.language);
 			
 			// CHECK LOCALIZATION FILE AVAILABILITY 
@@ -252,7 +252,6 @@
 				
 				// GET LOCALIZATION FILES LIST FROM LOCALES FOLDER
 				loc.localesFilesList = DirectoryList(ExpandPath(loc.pluginFolder & "locales"), false, "name", "*.cfm");
-
 			}
 			
 			// INIT REPOSITORY
@@ -336,7 +335,7 @@
 			if ( loc.isTextContainsDynamicText ) {
 				loc.localized.text = $replaceVariable(loc.original, loc.localized.text, 2);
 			}
-			
+
 			// RETURN CONSOLE LOG
 			// --> Only if localizatorShowLog is true
 			if ( get("localizatorShowLog") ) {
@@ -586,7 +585,7 @@
 			loc.localesFilesList = $initLocalizationFiles(loc.localized);
 			loc.action = arguments.action;
 			loc.update = "";
-			
+
 			// LOOP OVER LOCALIZATION FILES
 			for (loc.i = 1; loc.i <= ArrayLen(loc.localesFilesList); loc.i++) {
 				
@@ -696,13 +695,13 @@
 		 * @hint Check if locale is valid and available in server
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public boolean function $isValidLocale(required string locale) {
+		public boolean function isValidLocale(required string locale) {
 			var loc = {};
-						
+			
 			loc.locales = createObject('java','java.util.Locale').getAvailableLocales();
 
 			for (loc.i = 1; loc.i <= ArrayLen(loc.locales); loc.i++) {
-				if ( Compare(loc.locales[loc.i].toString(), arguments.locale) == 0 ) {
+				if ( CompareNoCase(loc.locales[loc.i].toString(), arguments.locale) == 0 ) {
 					return true;
 					break;
 				}
@@ -726,7 +725,7 @@
 
 			for (loc.i = 1; loc.i <= ListLen(loc.filesTempLocalesList); loc.i++) {
 				loc.locale = ListGetAt(loc.filesTempLocalesList, loc.i);
-				if ( $isValidLocale(loc.locale) ) {
+				if ( isValidLocale(loc.locale) ) {
 					loc.filesLocalesList = ListAppend(loc.filesLocalesList, loc.locale);
 				}
 			}
@@ -761,7 +760,7 @@
 		*/
 		public array function $initLocalizationFiles(required structOrQuery) {
 			var loc = {};
-			
+
 			loc.localized = arguments.structOrQuery;
 			loc.pluginFolder = "plugins/localizator/";
 			loc.localesFilesList = "";
@@ -769,18 +768,17 @@
 			// SET LOCALIZATION FILES LIST FROM DATABASE COLUMNS OR FORM PARAMS
 			if ( isQuery(loc.localized) ) {
 				loc.formParamsList = loc.localized.columnList;
-			
+
 			} else {
 				loc.formParamsList = StructKeyList(loc.localized);
 			}
-			
+
 			for (loc.i = 1; loc.i <= ListLen(loc.formParamsList); loc.i++) {
-				if ( FindOneOf("_", ListGetAt(loc.formParamsList, loc.i)) ) {
-					
+				if ( isValidLocale(ListGetAt(loc.formParamsList, loc.i)) ) {	
 					// CREATE LIST OF LOCALIZATION FILES BASED ON THE FORM FIELDS
 					loc.fileName = ListGetAt(loc.formParamsList, loc.i) & ".cfm";
 					loc.localesFilesList = ListAppend(loc.localesFilesList, loc.fileName);
-					
+
 					// SET LOCALIZATION FILE BASED ON THE FORM FIELDS
 					loc.languageFile = "locales/" & loc.fileName;
 					loc.language = ExpandPath(loc.pluginFolder & loc.languageFile);
@@ -791,7 +789,7 @@
 					}
 				}
 			}
-			
+
 			// CONVERT LIST OF LOCALIZATION FILES TO ARRAY
 			return ListToArray(loc.localesFilesList);
 		}
@@ -1183,9 +1181,9 @@
 			var loc = {};
 			
 			if ( arguments.isDatabaseTableAvailable ) {
-				loc.columnsList = new dbinfo(datasource=get("dataSourceName"), table=get('localizatorLanguageTable')).columns();
+				loc.columnList = new dbinfo(datasource=get("dataSourceName"), table=get('localizatorLanguageTable')).columns();
 				
-				return YesNoFormat(FindNoCase(arguments.language, ValueList(loc.columnsList.column_name)));
+				return YesNoFormat(FindNoCase(arguments.language, ValueList(loc.columnList.column_name)));
 				
 			} else {
 				return false;
@@ -1196,7 +1194,7 @@
 		 * @hint Check if Localizations table is present
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public boolean function $isDatabaseTableAvailable(required boolean isDatabaseAvailable) {
+		public boolean function isDatabaseTableAvailable(required boolean isDatabaseAvailable) {
 			var loc = {};
 			
 			if ( arguments.isDatabaseAvailable ) {
@@ -1214,7 +1212,7 @@
 		 * @hint Check if database is online
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public boolean function $isDatabaseAvailable() {
+		public boolean function isDatabaseAvailable() {
 			var loc = {};
 			
 			try {
