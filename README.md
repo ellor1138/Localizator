@@ -12,7 +12,7 @@ Localizator is a localization plugin for ColdFusion on Wheels. This plugin offer
 
 ## The Latest Version
 * The latest version of this plugin can be found at the Github project page at https://github.com/ellor1138/Localizator
-* The plugin can also be found at the CFWheels website at http://cfwheels.org/plugins/listing/89
+* The latest version of this plugin can also be found at the CFWheels website at http://cfwheels.org/plugins/listing/89
 
 ## Documentation
 Documentation for this project can be found at https://github.com/ellor1138/Localizator/wiki
@@ -25,10 +25,12 @@ Problems or issues with this plugin can be found at https://github.com/ellor1138
 * ColdFusion on Wheels 1.1.8
 
 ##### I have tested this plugin on the following CFML engines:
-* Adobe ColdFusion 9.0 Standard
+* Adobe ColdFusion 9 Developer Edition
+* Adobe ColdFusion 10 Developer Edition
 
 ##### I have tested this plugin with the following databases:
 * MSSQL Server 2008
+* MySQL 5.5
 
 ## Installation
 1. Download the latest version of [Localizator-x.x.zip](http://cfwheels.org/plugins/listing/89) and place it into the plugins directory of your ColdFusion on Wheels application.
