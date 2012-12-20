@@ -9,7 +9,7 @@
 		
 		loc.plugin.author = "Simon Allard";
 		loc.plugin.name = "localizator";
-		loc.plugin.version = "1.1";
+		loc.plugin.version = "1.2";
 		loc.plugin.compatibility = "1.1.8";
 		
 		loc.config.isDB = "No";
@@ -17,30 +17,24 @@
 		loc.config.url = "#CGI.script_name#?controller=wheels&action=wheels&view=plugins&name=#loc.plugin.name#";
 		
 		loc.config.languages = {};
-
-		// CHECK IF WE CAN CONNECT TO DATABASE
-		try {
-			loc.dataSource = new Query(datasource="#loc.config.dataSource#", sql="SELECT TOP 1 * FROM #get('localizatorLanguageTable')#").execute().getResult();
-			loc.config.isDB = "Yes";
-			formTextDB = model(get('localizatorLanguageTable')).new();
 		
-		} catch ( any e) {
-			if ( Len(e.message) ) {
-				if ( FindNoCase("Datasource", e.message) ) {
-					loc.error.datasource = e.message;
-				}
-				if ( FindNoCase("Database", e.message) ) {
-					loc.error.table = e.message;
-				}
-			}			
-		}
-
-		// GET LANGUAGES COLUMNS CONFIGURED IN LOCALIZATION TABLE
-		if ( loc.config.isDB ) {
+		// CHECK IF WE CAN CONNECT TO DATABASE & LOCALIZATION TABLE
+		loc.config.db = isDatabaseAvailable();
+		loc.config.dbTable = isDatabaseTableAvailable(loc.config.db);
+		
+		if ( loc.config.db && loc.config.dbTable ) {
+			loc.config.isDB = "Yes";
 			loc.config.languages.database = "";
-			for (loc.i = 1; loc.i <= ListLen(loc.dataSource.columnList); loc.i++) {
-				if ( findOneOf("_", ListGetAt(loc.dataSource.columnList,loc.i)) ) {
-					loc.config.languages.database = ListAppend(loc.config.languages.database, ListGetAt(loc.dataSource.columnList,loc.i));
+			
+			formTextDB = model(get('localizatorLanguageTable')).new();
+			
+			// GET LANGUAGES COLUMNS CONFIGURED IN LOCALIZATION TABLE
+			loc.columnList = new dbinfo(datasource=get("dataSourceName"), table=get('localizatorLanguageTable')).columns();
+			loc.columnList = ValueList(loc.columnList.column_name);
+			
+			for (loc.i = 1; loc.i <= ListLen(loc.columnList); loc.i++) {
+				if ( isValidLocale(ListGetAt(loc.columnList,loc.i)) ) {
+					loc.config.languages.database = ListAppend(loc.config.languages.database, ListGetAt(loc.columnList,loc.i));
 				}
 			}
 		}
@@ -63,6 +57,7 @@
 				if ( isDefined("params.formTextDB") && isDefined("params.formTextDB.text") && Len(params.formTextDB.text) ) {
 					// CHECK IF TEXT IS ALREADY IN LOCALIZATION TABLE
 					formTextDB = model(get('localizatorLanguageTable')).findAll(where="text='#params.formTextDB.text#'");
+					
 					if ( !formTextDB.recordCount ) {		
 						// ADD TEXT TO LOCALIZATION TABLE			
 						formTextDB = model(get('localizatorLanguageTable')).new(params.formTextDB);
