@@ -28,6 +28,12 @@
 					<li><u>set(localizatorLanguageTable="MyTableName")</u></li>
 				</ul>
 			</dd>
+			<dt>Localization file(s)</dt>
+			<dd>You can force the plugin to get translation from localization files instead of the database.
+				<ul>
+					<li><u>set(localizatorGetLocalizationFromFile=true)</u></li>
+				</ul>
+			</dd>
 		</dl>
 		<hr />
 		<div class="well well-small" style="text-align:center; margin-bottom:0;">

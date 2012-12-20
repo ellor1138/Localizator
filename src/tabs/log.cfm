@@ -1,6 +1,13 @@
 ﻿<cfoutput>
 	<div class="tab-pane" id="Log">
 		<dl class="dl-horizontal">
+			<dt>Version 1.3</dt>
+			<dd>December 21, 2012
+				<ul>
+					<li>New setting: You can force the plugin to get translation from the localization files instead of the database.</li>
+					<li>Speed improvement: Database/table detection happens only when you reload the application.</li>
+				</ul>
+			</dd>
 			<dt>Version 1.2</dt>
 			<dd>December 20, 2012
 				<ul>

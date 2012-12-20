@@ -61,6 +61,34 @@
 				application.wheels.localizatorShowDump = false;
 			}
 			
+			// - FORCE THE PLUGIN TO GET TRANSLATION FROM LOCALIZATION FILES
+			// - set(localizatorGetLocalizationFromFile=true/false) --> (config/settings.cfm)
+			/* 
+				-----------------------------------------------------------------------------
+				 My test suggest it's faster to load localization files in cache
+				 then querying the database to get translation for each translation request
+				-----------------------------------------------------------------------------
+			*/
+			if ( !isDefined("application.wheels.localizatorGetLocalizationFromFile") ) {
+				application.wheels.localizatorGetLocalizationFromFile = false;
+			}
+			
+			// CHECK DATABASE AVAILABILITY (Datasource, Table)
+			if ( !application.wheels.localizatorGetLocalizationFromFile && isDatabaseAvailable() ){
+				application.wheels.isDatabaseAvailable = true;
+				
+				if ( isDatabaseTableAvailable(true) ) {
+					application.wheels.isDatabaseTableAvailable = true;
+			
+				} else {
+					application.wheels.isDatabaseTableAvailable = false;
+				}
+			
+			} else {
+				application.wheels.isDatabaseAvailable = false;
+				application.wheels.isDatabaseTableAvailable = false;
+			}
+			
 			return this;
 		}
 		
@@ -74,7 +102,7 @@
 		*/
 		public string function l(required string text, string language) {
 			var loc = {};
-			
+
 			// REPLACE DOUBLE CURLY BRACKET WITH SINGLE CURLY BRACKET
 			// --> Convention is to put dynamic text (variable) between single curly brackets.
 			// --> localizeme("{#Now()#}") will return {{ts '2012-12-14 13:38:04'}}
@@ -132,11 +160,15 @@
 			loc.localize = arguments;
 			loc.localize.original = arguments.text;
 			
-			// CHECK DATABASE AVAILABILITY (Datasource, Table, Column (language = en_US, en_CA, etc...))
-			loc.isDatabaseAvailable = isDatabaseAvailable();
-			//loc.isDatabaseAvailable = false; // Uncomment to test localization files
-			loc.isDatabaseTableAvailable = isDatabaseTableAvailable(loc.isDatabaseAvailable);
-			loc.isDatabaseLanguageAvailable = $isDatabaseLanguageAvailable(loc.isDatabaseTableAvailable, loc.localize.language);
+			// SET DATABASE AVAILABILITY (Datasource, Table, Column (language = en_US, en_CA, etc...))
+			loc.isDatabaseAvailable = application.wheels.isDatabaseAvailable;
+			loc.isDatabaseTableAvailable = application.wheels.isDatabaseTableAvailable;
+			
+			if ( loc.isDatabaseTableAvailable ) {
+				loc.isDatabaseLanguageAvailable = $isDatabaseLanguageAvailable(loc.isDatabaseTableAvailable, loc.localize.language);
+			} else {
+				loc.isDatabaseLanguageAvailable = false;
+			}
 			
 			// CHECK LOCALIZATION FILE AVAILABILITY 
 			// --> Check if a localization file exists for the requested language
@@ -145,6 +177,10 @@
 			// ADD TEXT TO DATABASE AND/OR LOCALIZATION FILES
 			// --> Only if localizatorLanguageHarvest is true and environment not in production
 			if ( get('localizatorLanguageHarvest') && (get("environment") == "Design" || get("environment") == "Development") ) {
+				
+				// WE CHECK FOR DATABASE TO SAVE TEXT/TRANSLATION IF AVAILABLE (HARVEST MODE)
+				loc.isDatabaseAvailable = isDatabaseAvailable();
+				loc.isDatabaseTableAvailable = isDatabaseTableAvailable(loc.isDatabaseAvailable);
 				
 				// ADD TEXT TO DATABASE
 				if ( loc.isDatabaseAvailable && loc.isDatabaseTableAvailable ) {
@@ -160,15 +196,19 @@
 					loc.translation = $findLocalizedDatabaseText(argumentCollection=loc.localize);
 				}
 				
+				// GET TRANSLATION FROM LOCALIZATION FILE
+				if ( !isDefined("loc.translation") ) {
+					loc.translation = $findTextInLocalesFile(argumentCollection=loc.localize);
+				}
+				
 				if ( isDefined("loc.translation") && isDefined("loc.translation.found") ) {
 					loc.localized.text = loc.translation.text;
-				
-				} else if ( loc.isLocalizationFileAvailable ) {
-					loc.translation = $findTextInLocalesFile(argumentCollection=loc.localize);
-					
-					if ( isDefined("loc.translation") && isDefined("loc.translation.found") ) {
-						loc.localized.text = loc.translation.text;
-					}
+
+				// RETURN ORIGINAL TEXT
+				// --> No translation found
+				} else {
+					loc.localized = Duplicate(loc.localize);
+					loc.localized.message = "No translation found";
 				}
 			
 			// GET TRANSLATED TEXT FROM DATABASE OR LOCALIZATION FILES
@@ -179,11 +219,8 @@
 					loc.translation = $findLocalizedDatabaseText(argumentCollection=loc.localize);
 				}
 				
-				if ( isDefined("loc.translation") && isDefined("loc.translation.found") ) {
-					loc.localized.text = loc.translation.text;
-				
 				// GET TRANSLATION FROM LOCALIZATION FILE
-				} else if ( loc.isLocalizationFileAvailable ) {
+				if ( !isDefined("loc.translation") ) {
 					loc.translation = $findTextInLocalesFile(argumentCollection=loc.localize);
 				}
 				
@@ -826,6 +863,7 @@
 			loc.jWriter.flush();  
 			loc.jWriter.close();  
 			loc.jStream.close();
+
 			
 			return loc;
 		}
@@ -966,8 +1004,8 @@
 			}
 			
 			// GET TEXT FROM DATABASE
-			loc.translation = model(get('localizatorLanguageTable')).findOne(select="#loc.language# AS localizedText", where="text='#loc.localized.text#'", returnAs="query");
-
+			loc.translation = model(get('localizatorLanguageTable')).findAll(select="#loc.language# AS localizedText", where="text='#loc.localized.text#'", returnAs="query");					
+					
 			if ( loc.translation.recordCount ) {
 				// SET LOCALIZED TEXT TO RETURN STRUCTURE IF TEXT IS FOUND
 				if ( Len(loc.translation.localizedText) ) {
@@ -1199,11 +1237,11 @@
 			
 			if ( arguments.isDatabaseAvailable ) {
 				try {
-					loc.tablesList = new dbinfo(datasource=get("dataSourceName")).tables();
-					return YesNoFormat(FindNoCase(get('localizatorLanguageTable'), ValueList(loc.tablesList.table_name)));
+					loc.info = new dbinfo(datasource=application.wheels.dataSourceName, username=application.wheels.dataSourceUserName, password=application.wheels.dataSourcePassword).tables();
+					return YesNoFormat(FindNoCase(application.wheels.localizatorLanguageTable, ValueList(loc.info.table_name)));
 				
 				} catch ( any e ) {
-					return "No";
+					return false;
 				}
 			}
 		}
@@ -1216,10 +1254,10 @@
 			var loc = {};
 			
 			try {
-				loc.info = new dbinfo(type="version", datasource=get("dataSourceName"), username=application.wheels.dataSourceUserName, password=application.wheels.dataSourcePassword);
-				return "Yes";
+				loc.info = new dbinfo(type="version", datasource=application.wheels.dataSourceName, username=application.wheels.dataSourceUserName, password=application.wheels.dataSourcePassword);
+				return true;
 			} catch ( any e ) {
-				return "No";
+				return false;
 			}
 		}
 
