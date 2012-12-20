@@ -197,7 +197,7 @@
 				}
 				
 				// GET TRANSLATION FROM LOCALIZATION FILE
-				if ( !isDefined("loc.translation") ) {
+				if ( !isDefined("loc.translation") && loc.isLocalizationFileAvailable ) {
 					loc.translation = $findTextInLocalesFile(argumentCollection=loc.localize);
 				}
 				
@@ -220,7 +220,7 @@
 				}
 				
 				// GET TRANSLATION FROM LOCALIZATION FILE
-				if ( !isDefined("loc.translation") ) {
+				if ( !isDefined("loc.translation") && loc.isLocalizationFileAvailable ) {
 					loc.translation = $findTextInLocalesFile(argumentCollection=loc.localize);
 				}
 				
