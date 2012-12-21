@@ -36,7 +36,7 @@
 				</cfif>
 			</div>
 			
-		<cfelseif isDefined("loc.error.datasource")>
+		<cfelseif !loc.config.db>
 			<div class="alert alert-error" style="margin-bottom:0; padding:10px 8px 0;">
 				<h4>Datasource <strong style="color:##F30;">not found</strong></h4>
 				<ol>
@@ -44,7 +44,7 @@
 					<li>Reload your application.</li>
 				</ol>
 			</div>
-		<cfelseif isDefined("loc.error.table")>
+		<cfelseif !loc.config.dbTable>
 			<div class="alert alert-error" style="margin-bottom:0; padding:10px 8px 0;">
 				<h4>Table <strong style="color:##F30;">not found</strong></h4>
 				<ol>

@@ -1,4 +1,4 @@
-﻿<cfscript>
+<cfscript>
 	component output=false {
 		
 		/*
@@ -1239,10 +1239,11 @@
 				try {
 					loc.info = new dbinfo(datasource=application.wheels.dataSourceName, username=application.wheels.dataSourceUserName, password=application.wheels.dataSourcePassword).tables();
 					return YesNoFormat(FindNoCase(application.wheels.localizatorLanguageTable, ValueList(loc.info.table_name)));
-				
 				} catch ( any e ) {
 					return false;
 				}
+			} else {
+				return false;
 			}
 		}
 		
@@ -1254,7 +1255,7 @@
 			var loc = {};
 			
 			try {
-				loc.info = new dbinfo(type="version", datasource=application.wheels.dataSourceName, username=application.wheels.dataSourceUserName, password=application.wheels.dataSourcePassword);
+				loc.info = new dbinfo(datasource=application.wheels.dataSourceName, username=application.wheels.dataSourceUserName, password=application.wheels.dataSourcePassword).version();
 				return true;
 			} catch ( any e ) {
 				return false;
