@@ -24,9 +24,10 @@
 		 * ---------------------------------------------------------------------------------------------------
 		*/
 		public function init() {
+			
 			this.version = "1.1.8";
-
-			localizator = {};
+			
+			localizator  = {};
 
 			/* ---------------------------------------------------------------------------------------------------
 			 * APPLY DEFAULT SETTINGS IF NOT SUPPLIED IN --> (config/settings.cfm)
@@ -109,7 +110,7 @@
 			
 			loc.languages = {};
 			loc.languages.database = getLanguagesDatabase(loc.isAvailableDatabaseTable);
-			loc.languages.locales  = getLanguagesFiles(loc.folder.locales);
+			loc.languages.locales  = getLanguagesFiles(loc.languageDefault, loc.folder.locales);
 			
 			loc.files = {};
 			loc.files.repository = getFileRepository(loc.folder.repository);
@@ -160,9 +161,7 @@
 		 * ---------------------------------------------------------------------------------------------------
 		*/
 		public struct function initLocalization(required struct localize) {
-			var loc = {};
-
-			loc = arguments;
+			var loc = arguments;
 
 			if ( localizator.settings.harvester ) {
 				loc.localized = addText(argumentCollection=loc.localize);
@@ -181,7 +180,6 @@
 			var loc = {};
 
 			// ORIGINAL LOCALIZATION REQUEST
-			loc.localize          = {};
 			loc.localize          = arguments;
 			loc.localize.original = arguments.text;
 
@@ -198,43 +196,114 @@
 			var loc = {};
 
 			loc.localize  = arguments;
-			loc.isDynamic = isDynamic(loc.localize.text);
-			loc.database  = {}; 
-			loc.files     = {};
 			loc.text      = loc.localize.text;
+			loc.isDynamic = isDynamic(loc.text);
+			loc.database  = {}; 
+			loc.file      = {};
 
 			if ( loc.isDynamic ) {
-				loc.text = replaceVariable(loc.localize.text);
+				loc.text = replaceVariable(loc.text);
 			}
 
 			if ( ListLen(localizator.settings.languages.database) ) {
-				loc.database.check = model(localizator.settings.localizationTable).findOne(where="text='#loc.text#'", returnAs="query");
+				loc.database.check = checkTextInDatabase(loc.text);
 
 				if ( !loc.database.check.recordCount ) {
 					loc.database.obj = model(localizator.settings.localizationTable).new(loc);
+					
 					if ( loc.database.obj.save() ) {
 						loc.database.saved = true;
+					
 					} else {
 						loc.database.saved = false;
 					}
+				
 				} else {
 					loc.database.saved = false;
 				}
 			}
 
-			loc.string = '<cfset loc["' & loc.text & '"] = "">';
-			loc.default = '<cfset loc["' & loc.text & '"] = "' & loc.text & '">';
+			loc.locEmpty = '<cfset loc["' & loc.text & '"] = "">';
+			loc.locDefault = '<cfset loc["' & loc.text & '"] = "' & loc.text & '">';
 
 			if ( ListLen(localizator.settings.files.repository) ) {
-				
+				loc.file.filePath = localizator.settings.files.repository;
+				loc.file.struct   = includePluginFile(loc.file.filePath);
+				loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
+
+				if ( !loc.file.check ) {
+					loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locEmpty);
+				}
 			}
 
 			if ( ListLen(localizator.settings.files.locales) ) {
-				
+				for ( loc.i IN localizator.settings.files.locales) {
+					loc.file.filePath = loc.i;
+					loc.file.struct   = includePluginFile(loc.file.filePath);
+					loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
+					loc.language      = ReplaceNoCase(Mid(loc.i, loc.file.filePath.lastIndexOf("\")+2, loc.file.filePath.lastIndexOf(".")), ".cfm", "");
+					if ( !loc.file.check ) {
+						if ( loc.language == localizator.settings.languageDefault ) {
+							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locDefault);
+						} else {
+							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locEmpty);
+						}
+					}
+
+				}
 			}
 
-			writeDump(loc);
-			abort;
+			return loc;
+		}
+
+		public struct function appendTextToFile(required string filePath, required string text) {
+			var loc = arguments;
+
+			loc.file = FileOpen(loc.filePath, "append", "utf-8");
+
+			FileWriteLine(loc.file, loc.text);
+
+			FileClose(loc.file);
+
+			return loc;
+		}
+
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * @hint  Check text in database
+		 * ---------------------------------------------------------------------------------------------------
+		*/	
+		public query function checkTextInDatabase(required string text) {
+			var loc = arguments;
+
+			loc.qr = model(localizator.settings.localizationTable).findOne(where="text='#loc.text#'", returnAs="query");
+
+			return loc.qr;
+		}
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * @hint  Check text in file
+		 * ---------------------------------------------------------------------------------------------------
+		*/	
+		public boolean function checkTextInFile(required struct fileContent, required string text) {
+			var loc = arguments;
+
+			if ( StructKeyExists(loc.fileContent, loc.text) ) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * @hint  Include plugin file
+		 * ---------------------------------------------------------------------------------------------------
+		*/		
+		public struct function includePluginFile(required string filePath) {
+			var loc = {};
+
+			include ReplaceNoCase(arguments.filePath, ExpandPath(localizator.settings.folder.plugins), "");
+			
 			return loc;
 		}
 
@@ -280,7 +349,7 @@
 			loc = arguments;
 			
 			// Create the file stream  
-			loc.jFile = CreateObject("java", "java.io.File").init(loc.filepath);  
+			loc.jFile   = CreateObject("java", "java.io.File").init(loc.filepath);  
 			loc.jStream = CreateObject("java", "java.io.FileOutputStream").init(loc.jFile); 
 			
 			// Output the UTF-8 BOM byte by byte directly to the stream  
@@ -306,15 +375,12 @@
 		 * ---------------------------------------------------------------------------------------------------
 		*/
 		public string function validateLanguagesList(required string languages="") {
-			var loc = {};
+			var loc = arguments;
 
-			loc      = arguments;
 			loc.list = "";
 
 			for (loc.i = 1; loc.i <= ListLen(loc.languages); loc.i++) {
-				
 				loc.locale = ListGetAt(loc.languages, loc.i);
-				
 				if ( isValidLocale(loc.locale) ) {
 					loc.list = ListAppend(loc.list, loc.locale);
 				}
@@ -345,13 +411,17 @@
 		 * @hint Return languages list from localization files in the locales folder
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public function getLanguagesFiles(required string folder) {
-			var loc = {};
+		public function getLanguagesFiles(required string localeid, required string folder) {
+			var loc = arguments;
 			
-			loc.array = DirectoryList(ExpandPath(arguments.folder), false, "name", "*.cfm");
-			loc.list  = ReplaceNoCase(ArrayToList(loc.array), ".cfm","","ALL");
-			
-			loc.languages = validateLanguagesList(loc.list);
+			loc.array = DirectoryList(ExpandPath(loc.folder), false, "name", "*.cfm");
+
+			if ( !ArrayFindNoCase(loc.array, loc.localeid & ".cfm") ) {
+				ArrayAppend(loc.array, loc.localeid);
+			}
+
+			loc.languagesList = ReplaceNoCase(ArrayToList(loc.array), ".cfm", "", "ALL");
+			loc.languages     = validateLanguagesList(loc.languagesList);
 			
 			return loc.languages;
 		}
@@ -380,28 +450,28 @@
 		public function getFileLocales(required string folder, required string locales, required string database) {
 			var loc = {};
 			
-			loc.list = "";
-			loc.list = ListAppend(loc.list, arguments.locales);
-			loc.list = ListAppend(loc.list, arguments.database);
-			loc.array = ListToArray(loc.list);
-
+			loc.list  = "";
 			loc.files = "";
-		  	
-		  	for (loc.i = 1; loc.i LTE ArrayLen(loc.array); loc.i++) {
-		  		if ( !ListFindNoCase(loc.files, loc.array[loc.i]) ) {
-		  			loc.files = ListAppend(loc.files, loc.array[loc.i] & ".cfm");
-		  		}
+
+			loc.list         = ListAppend(loc.list, arguments.locales);
+			loc.list         = ListAppend(loc.list, arguments.database);
+			loc.objKeyExists = {};
+			loc.arrayNewList = [];
+
+		  	for ( loc.i IN loc.list ){
+		  		if ( !StructKeyExists(loc.objKeyExists,  loc.i) ) {
+					loc.objKeyExists[loc.i] = true;
+					loc.file = ExpandPath(arguments.folder & "/" & loc.i & ".cfm");
+					
+					if ( !FileExists(loc.file) ) {
+						loc.file = createFile(loc.file);
+					}
+
+					ArrayAppend(loc.arrayNewList, loc.file);
+	  			}
 		  	}
 
-			for (loc.i = 1; loc.i <= ListLen(loc.files); loc.i++) {
-				loc.file = ExpandPath(arguments.folder & "/" & ListGetAt(loc.files,loc.i));
-
-				if ( !FileExists(loc.file) ) {
-					loc.file = createFile(loc.file);
-				}
-
-				loc.files = ListSetAt(loc.files, loc.i, loc.file);
-			}
+		  	loc.files = ArrayToList(loc.arrayNewList);
 
 			return loc.files;
 		}
@@ -437,7 +507,7 @@
 				try {
 					loc.info = new dbinfo(datasource=application.wheels.dataSourceName, username=application.wheels.dataSourceUserName, password=application.wheels.dataSourcePassword).tables();
 					return YesNoFormat(FindNoCase(application.wheels.localizatorLanguageTable, ValueList(loc.info.table_name)));
-				} catch ( any e ) {
+				} catch ( any error ) {
 					return false;
 				}
 			} else {
@@ -455,7 +525,7 @@
 			try {
 				loc.info = new dbinfo(datasource=application.wheels.dataSourceName, username=application.wheels.dataSourceUserName, password=application.wheels.dataSourcePassword).version();
 				return true;
-			} catch ( any erroe ) {
+			} catch ( any error ) {
 				return false;
 			}
 		}
