@@ -163,10 +163,10 @@
 		public struct function initLocalization(required struct localize) {
 			var loc = arguments;
 
-			if ( localizator.settings.harvester ) {
+			if ( localizator.settings.harvester && (get("environment") == "Design" || get("environment") == "Development") ) {
 				loc.localized = addText(argumentCollection=loc.localize);
 			} else {
-				loc.localized = getText(argumentCollection=loc);
+				loc.localized = getText(argumentCollection=loc.localize);
 			}
 
 			return loc.localized;
@@ -176,20 +176,48 @@
 		 * @hint Return text translation
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public string function getText(required string text, required string localeid) {
-			var loc = {};
+		public struct function getText(required string text, required string localeid) {
+			var loc = arguments;
 
-			// ORIGINAL LOCALIZATION REQUEST
-			loc.localize          = arguments;
-			loc.localize.original = arguments.text;
+			loc.original  = loc.text;
+			loc.isDynamic = isDynamic(loc.text);
+			loc.database  = {}; 
+			loc.file      = {};
 
+			if ( loc.isDynamic ) {
+				loc.text = replaceVariable(loc.text);
+			}
+
+			if ( !localizator.settings.getFromFile && ListLen(localizator.settings.languages.database) && ListFindNoCase(localizator.settings.languages.database, loc.localeid) ) {
+				loc.database.check = checkTextInDatabase(loc.text, loc.localeid);
+				if ( loc.database.check.recordCount ) {
+					loc.text = loc.database.check.textTranslation;
+				}
+			} else if ( ListLen(localizator.settings.languages.locales) && ListFindNoCase(localizator.settings.languages.locales, loc.localeid) ) {
+				for ( loc.i IN localizator.settings.files.locales) {
+					loc.language = ReplaceNoCase(Mid(loc.i, loc.i.lastIndexOf("\")+2, loc.i.lastIndexOf(".")), ".cfm", "");
+					if ( loc.language == loc.localeid) {
+						loc.file.filePath = loc.i;
+						loc.file.struct   = includePluginFile(loc.file.filePath, 1);
+						loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
+						if ( loc.file.check ) {
+							loc.text = loc.file.struct[loc.text];
+						}
+						break;
+					}
+				}
+			}
+
+			if ( loc.isDynamic ) {
+				loc.text = replaceVariable(loc.text, loc.original);
+			}
 			writeDump(loc);
-			abort;
-			return loc.localized.text;
+			return loc;
 		}
 
+
 		/* ---------------------------------------------------------------------------------------------------
-		 * @hint Return text translation
+		 * @hint Add text to database and/or locales files
 		 * ---------------------------------------------------------------------------------------------------
 		*/
 		public struct function addText(required string original, required string text) {
@@ -197,6 +225,7 @@
 
 			loc.localize  = arguments;
 			loc.text      = loc.localize.text;
+			loc.original  = loc.localize.original;
 			loc.isDynamic = isDynamic(loc.text);
 			loc.database  = {}; 
 			loc.file      = {};
@@ -223,7 +252,7 @@
 				}
 			}
 
-			loc.locEmpty = '<cfset loc["' & loc.text & '"] = "">';
+			loc.locEmpty   = '<cfset loc["' & loc.text & '"] = "">';
 			loc.locDefault = '<cfset loc["' & loc.text & '"] = "' & loc.text & '">';
 
 			if ( ListLen(localizator.settings.files.repository) ) {
@@ -248,9 +277,16 @@
 						} else {
 							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locEmpty);
 						}
+						loc.file.saved = true;
+					} else {
+						loc.file.saved = false;
 					}
 
 				}
+			}
+
+			if ( loc.isDynamic ) {
+				loc.text = replaceVariable(loc.text, loc.original);
 			}
 
 			return loc;
@@ -273,10 +309,14 @@
 		 * @hint  Check text in database
 		 * ---------------------------------------------------------------------------------------------------
 		*/	
-		public query function checkTextInDatabase(required string text) {
+		public query function checkTextInDatabase(required string text, string localeid) {
 			var loc = arguments;
 
-			loc.qr = model(localizator.settings.localizationTable).findOne(where="text='#loc.text#'", returnAs="query");
+			if ( isDefined("loc.localeid") ) {
+				loc.qr = model(localizator.settings.localizationTable).findOne(select="#loc.localeid# AS textTranslation", where="text='#loc.text#'", returnAs="query");
+			} else{
+				loc.qr = model(localizator.settings.localizationTable).findOne(where="text='#loc.text#'", returnAs="query");
+			}
 
 			return loc.qr;
 		}
@@ -299,22 +339,36 @@
 		 * @hint  Include plugin file
 		 * ---------------------------------------------------------------------------------------------------
 		*/		
-		public struct function includePluginFile(required string filePath) {
+		public struct function includePluginFile(required string filePath, required boolean cacheFile=0) {
 			var loc = {};
+			var template = ReplaceNoCase(arguments.filePath, ExpandPath(localizator.settings.folder.plugins), "");
 
-			include ReplaceNoCase(arguments.filePath, ExpandPath(localizator.settings.folder.plugins), "");
+			if ( arguments.cacheFile ) {
+				if ( !StructKeyExists(request, "localizator") || !StructKeyExists(request.localizator, "cache") ) {
+					request.localizator.cache = {};
+				}
+				if ( StructKeyExists(request.localizator.cache, template) ) {
+					return request.localizator.cache[template];
+				} else {
+					include template;
+					request.localizator.cache[template] = Duplicate(loc);
+					return loc;
+				}
+			} else {
+				include template;
+				return loc;
+			}
 			
-			return loc;
 		}
 
 		/* ---------------------------------------------------------------------------------------------------
 		 * @hint Replace variable text {variable}
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public string function replaceVariable(required string text) {
+		public string function replaceVariable(required string text, string original) {
 			var loc = {};
 
-			if ( arguments.text DOES NOT CONTAIN "{variable}" && arguments.text CONTAINS "{" && arguments.text CONTAINS "}" ) {
+			if ( arguments.text DOES NOT CONTAIN "{variable}" && (arguments.text CONTAINS "{" && arguments.text CONTAINS "}") ) {
 				loc.textBetweenDynamicText = ReMatch("{(.*?)}", arguments.text);
 				loc.iEnd = ArrayLen(loc.textBetweenDynamicText);
 				for (loc.i = 1; loc.i <= loc.iEnd; loc.i++) {
