@@ -3,7 +3,7 @@
 		
 		/*
 			---------------------------------------------------------------------------------------------------
-				Copyright 2012 Simon Allard
+				Copyright © 2012 Simon Allard
 				
 				Licensed under the Apache License, Version 2.0 (the "License");
 				you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@
 		 * ---------------------------------------------------------------------------------------------------
 		*/
 		public function init() {
-			
+			var loc = {};
+
 			this.version = "1.1.8";
 			
 			localizator  = {};
@@ -34,8 +35,8 @@
 		 	 * ---------------------------------------------------------------------------------------------------
 			*/
 			
-			// - SET DEFAULT LANGUAGE (default to server locale)
-			// - set(localizatorLanguageDefault="ShortDescriptionLocale") --> (config/settings.cfm)
+			// - SET DEFAULT LANGUAGE (default to server Locale ID)
+			// - set(localizatorLanguageDefault="Locale ID") --> (config/settings.cfm)
 			if ( !isDefined("application.wheels.localizatorLanguageDefault") ) {
 				application.wheels.localizatorLanguageDefault = CreateObject("java", "java.util.Locale").getDefault().toString();
 			}
@@ -58,14 +59,13 @@
 				application.wheels.localizatorGetLocalizationFromFile = false;
 			}
 
-			application.wheels.serverLocales = createObject('java','java.util.Locale').getAvailableLocales();
+			// CREATE LIST OF AVAILABLE SERVER LOCALE ID
+			loc.serverLocales = createObject('java','java.util.Locale').getAvailableLocales();
 			application.wheels.localizatorServerLocales = "";
 
-			for (this.i = 1; this.i <= ArrayLen(application.wheels.serverLocales); this.i++) {
-				application.wheels.localizatorServerLocales = ListAppend(application.wheels.localizatorServerLocales, application.wheels.serverLocales[this.i].toString());
+			for (loc.i = 1; loc.i <= ArrayLen(loc.serverLocales); loc.i++) {
+				application.wheels.localizatorServerLocales = ListAppend(application.wheels.localizatorServerLocales, loc.serverLocales[loc.i].toString());
 			}
-
-			StructDelete(application.wheels, "serverLocales");
 
 			this.settings = initPluginSettings();
 
@@ -87,6 +87,15 @@
 		public struct function initPluginSettings() {
 			var loc = {};
 			
+			loc.plugin = {};
+			loc.plugin.author        = "Simon Allard";
+			loc.plugin.name          = "localizator";
+			loc.plugin.version       = "2";
+			loc.plugin.compatibility = "1.1.8";
+			loc.plugin.project       = "https://github.com/ellor1138/Localizator";
+			loc.plugin.documentation = "https://github.com/ellor1138/Localizator/wiki";
+			loc.plugin.issues        = "https://github.com/ellor1138/Aquanote/issues";
+
 			loc.datasource        = application.wheels.dataSourceName;
 			loc.languageDefault   = application.wheels.localizatorLanguageDefault;
 			loc.harvester         = application.wheels.localizatorLanguageHarvest;
@@ -211,7 +220,7 @@
 			if ( loc.isDynamic ) {
 				loc.text = replaceVariable(loc.text, loc.original);
 			}
-			writeDump(loc);
+
 			return loc;
 		}
 
@@ -236,19 +245,8 @@
 
 			if ( ListLen(localizator.settings.languages.database) ) {
 				loc.database.check = checkTextInDatabase(loc.text);
-
 				if ( !loc.database.check.recordCount ) {
-					loc.database.obj = model(localizator.settings.localizationTable).new(loc);
-					
-					if ( loc.database.obj.save() ) {
-						loc.database.saved = true;
-					
-					} else {
-						loc.database.saved = false;
-					}
-				
-				} else {
-					loc.database.saved = false;
+					loc.database.obj = model(localizator.settings.localizationTable).create(loc);
 				}
 			}
 
@@ -259,7 +257,6 @@
 				loc.file.filePath = localizator.settings.files.repository;
 				loc.file.struct   = includePluginFile(loc.file.filePath);
 				loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
-
 				if ( !loc.file.check ) {
 					loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locEmpty);
 				}
@@ -277,9 +274,6 @@
 						} else {
 							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locEmpty);
 						}
-						loc.file.saved = true;
-					} else {
-						loc.file.saved = false;
 					}
 
 				}
@@ -340,7 +334,7 @@
 		 * ---------------------------------------------------------------------------------------------------
 		*/		
 		public struct function includePluginFile(required string filePath, required boolean cacheFile=0) {
-			var loc = {};
+			var loc      = {};
 			var template = ReplaceNoCase(arguments.filePath, ExpandPath(localizator.settings.folder.plugins), "");
 
 			if ( arguments.cacheFile ) {

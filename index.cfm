@@ -1,12 +1,17 @@
 ﻿<cfsetting enablecfoutputonly="true">
 
+<cfset pluginSettings = getPluginSettings()>
+
 <cfparam name="FORM.letter" default="all">
+
+
 
 <!--- <cfinclude template="src/scripts.cfm" />
 <cfinclude template="src/layout.cfm" /> --->
 
-<cfoutput>
-	<!-- <cfset pluginSettings = getPluginSettings()> -->
+<!--- <cfoutput>
 	<cfdump var="#pluginSettings#">
-	#l("Welcome {bob}")#
-</cfoutput>
+	<hr>
+	#l("Welcome {bob}","fr_CA")#
+	#pluginSettings.isDB#
+</cfoutput> --->
