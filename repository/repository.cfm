@@ -1,1 +1,0 @@
-<cfset loc["Welcome {variable}"] = "">
