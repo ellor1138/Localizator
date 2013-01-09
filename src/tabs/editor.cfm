@@ -9,9 +9,9 @@
 					<dt>In your database or localization files, this text entry:</dt>
 					<dd>Hi {variable}!</dd>
 					<dt>Once used with the plugin function:</dt>
-					<dd>##localizeme("Hi {##user.firstname##}!", "fr_CA")##</dd>
+					<dd>##localizeme("Hi {##user.firstname##}!")##</dd>
 					<dt>Will result in this:</dt>
-					<dd>Bonjour Bob!</dd>
+					<dd>Hi Bob!</dd>
 				</dl>
 			</li>
 		</ul>

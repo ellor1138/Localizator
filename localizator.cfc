@@ -27,8 +27,6 @@
 			var loc = {};
 
 			this.version = "1.1.8";
-			
-			localizator  = {};
 
 			/* ---------------------------------------------------------------------------------------------------
 			 * APPLY DEFAULT SETTINGS IF NOT SUPPLIED IN --> (config/settings.cfm)
@@ -67,7 +65,7 @@
 				application.wheels.localizatorServerLocales = ListAppend(application.wheels.localizatorServerLocales, loc.serverLocales[loc.i].toString());
 			}
 
-			this.settings = initPluginSettings();
+			application.wheels.localizatorSettings = getPluginSettings();
 
 			return this;
 		}
@@ -77,7 +75,7 @@
 		 * ---------------------------------------------------------------------------------------------------
 		*/
 		public struct function getPluginSettings() {
-			return localizator.settings;
+			return initPluginSettings();
 		}
 
 		/* ---------------------------------------------------------------------------------------------------
@@ -153,11 +151,11 @@
 			if ( isDefined("arguments.localeid") && Len(arguments.localeid) ) {
 				loc.localeid = arguments.localeid; // Language passed by function
 			
-			} else if ( isDefined("application.wheels.localizatorLanguageSession") && isStruct(session) && isDefined("session." & get('localizatorLanguageSession')) ) {
-				loc.localeid = StructGet("session." & get('localizatorLanguageSession')); // Language from user session
-
+			} else if ( isDefined("application.wheels.localizatorLanguageSession") && isStruct(session) && isDefined("session." & application.wheels.localizatorLanguageSession) ) {
+				loc.localeid = StructGet("session." & application.wheels.localizatorLanguageSession); // Language from session
+			
 			} else {
-				loc.localeid = get('localizatorLanguageDefault'); // Language from default settings
+				loc.localeid = application.wheels.localizatorLanguageDefault; // Language from default settings
 			}
 
 			loc.localized = initLocalization(loc);
@@ -172,7 +170,7 @@
 		public struct function initLocalization(required struct localize) {
 			var loc = arguments;
 
-			if ( localizator.settings.harvester && (get("environment") == "Design" || get("environment") == "Development") ) {
+			if ( application.wheels.localizatorSettings.harvester && (get("environment") == "Design" || get("environment") == "Development") ) {
 				loc.localized = addText(argumentCollection=loc.localize);
 			} else {
 				loc.localized = getText(argumentCollection=loc.localize);
@@ -188,7 +186,6 @@
 		public struct function getText(required string text, required string localeid) {
 			var loc = arguments;
 
-			loc.original  = loc.text;
 			loc.isDynamic = isDynamic(loc.text);
 			loc.database  = {}; 
 			loc.file      = {};
@@ -197,23 +194,20 @@
 				loc.text = replaceVariable(loc.text);
 			}
 
-			if ( !localizator.settings.getFromFile && ListLen(files.repository.languages.database) && ListFindNoCase(localizator.settings.languages.database, loc.localeid) ) {
+			if ( !application.wheels.localizatorGetLocalizationFromFile && ListLen(application.wheels.localizatorSettings.languages.database) && ListFindNoCase(application.wheels.localizatorSettings.languages.database, loc.localeid) ) {
 				loc.database.check = checkTextInDatabase(loc.text, loc.localeid);
-				if ( loc.database.check.recordCount ) {
+				if ( loc.database.check.recordCount && Len(loc.database.check.textTranslation) ) {
 					loc.text = loc.database.check.textTranslation;
+					loc.foundInDatabase = 1;
 				}
-			} else if ( ListLen(localizator.settings.languages.locales) && ListFindNoCase(localizator.settings.languages.locales, loc.localeid) ) {
-				for ( loc.i IN localizator.settings.files.locales) {
-					loc.language = ReplaceNoCase(Mid(loc.i, loc.i.lastIndexOf("\")+2, loc.i.lastIndexOf(".")), ".cfm", "");
-					if ( loc.language == loc.localeid) {
-						loc.file.filePath = loc.i;
-						loc.file.struct   = includePluginFile(loc.file.filePath, 1);
-						loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
-						if ( loc.file.check ) {
-							loc.text = loc.file.struct[loc.text];
-						}
-						break;
-					}
+			}
+
+			if ( !isDefined("loc.foundInDatabase") && ListLen(application.wheels.localizatorSettings.languages.locales) && ListFindNoCase(application.wheels.localizatorSettings.languages.locales, loc.localeid) ) {
+				loc.file.filePath = ExpandPath(application.wheels.localizatorSettings.folder.locales & "\" & loc.localeid & ".cfm");
+				loc.file.struct   = includePluginFile(loc.file.filePath, 1);
+				loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
+				if ( loc.file.check && Len(loc.file.struct[loc.text]) ) {
+					loc.text = loc.file.struct[loc.text];
 				}
 			}
 
@@ -230,11 +224,8 @@
 		 * ---------------------------------------------------------------------------------------------------
 		*/
 		public struct function addText(required string original, required string text) {
-			var loc = {};
+			var loc = arguments;
 
-			loc.localize  = arguments;
-			loc.text      = loc.localize.text;
-			loc.original  = loc.localize.original;
 			loc.isDynamic = isDynamic(loc.text);
 			loc.database  = {}; 
 			loc.file      = {};
@@ -243,36 +234,36 @@
 				loc.text = replaceVariable(loc.text);
 			}
 
-			if ( ListLen(localizator.settings.languages.database) ) {
+			if ( ListLen(application.wheels.localizatorSettings.languages.database) ) {
 				loc.database.check = checkTextInDatabase(loc.text);
 				if ( !loc.database.check.recordCount ) {
-					loc.database.obj = model(localizator.settings.localizationTable).create(loc);
+					loc.database.obj = model(application.wheels.localizatorSettings.localizationTable).create(loc);
 				}
 			}
 
-			loc.locEmpty   = '<cfset loc["' & loc.text & '"] = "">';
-			loc.locDefault = '<cfset loc["' & loc.text & '"] = "' & loc.text & '">';
+			loc.text_default   = '<cfset loc["' & loc.text & '"] = "">';
+			loc.text_localized = '<cfset loc["' & loc.text & '"] = "' & loc.text & '">';
 
-			if ( ListLen(localizator.settings.files.repository) ) {
-				loc.file.filePath = localizator.settings.files.repository;
+			if ( ListLen(application.wheels.localizatorSettings.files.repository) ) {
+				loc.file.filePath = application.wheels.localizatorSettings.files.repository;
 				loc.file.struct   = includePluginFile(loc.file.filePath);
 				loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
 				if ( !loc.file.check ) {
-					loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locEmpty);
+					loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_default);
 				}
 			}
 
-			if ( ListLen(localizator.settings.files.locales) ) {
-				for ( loc.i IN localizator.settings.files.locales) {
-					loc.file.filePath = loc.i;
+			if ( ListLen(application.wheels.localizatorSettings.files.locales) ) {
+				for (loc.i = 1; loc.i <= ListLen(application.wheels.localizatorSettings.files.locales); loc.i++) {
+					loc.file.filePath = ListGetAt(application.wheels.localizatorSettings.files.locales, loc.i);
 					loc.file.struct   = includePluginFile(loc.file.filePath);
 					loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
-					loc.language      = ReplaceNoCase(Mid(loc.i, loc.file.filePath.lastIndexOf("\")+2, loc.file.filePath.lastIndexOf(".")), ".cfm", "");
+					loc.language      = ReplaceNoCase(Mid(loc.file.filePath, loc.file.filePath.lastIndexOf("\")+2, loc.file.filePath.lastIndexOf(".")), ".cfm", "");
 					if ( !loc.file.check ) {
-						if ( loc.language == localizator.settings.languageDefault ) {
-							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locDefault);
+						if ( loc.language == application.wheels.localizatorLanguageDefault ) {
+							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_localized);
 						} else {
-							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.locEmpty);
+							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_default);
 						}
 					}
 
@@ -310,9 +301,9 @@
 			var loc = arguments;
 
 			if ( isDefined("loc.localeid") ) {
-				loc.qr = model(localizator.settings.localizationTable).findOne(select="#loc.localeid# AS textTranslation", where="text='#loc.text#'", returnAs="query");
+				loc.qr = model(application.wheels.localizatorSettings.localizationTable).findOne(select="#loc.localeid# AS textTranslation", where="text='#loc.text#'", returnAs="query");
 			} else{
-				loc.qr = model(localizator.settings.localizationTable).findOne(where="text='#loc.text#'", returnAs="query");
+				loc.qr = model(application.wheels.localizatorSettings.localizationTable).findOne(where="text='#loc.text#'", returnAs="query");
 			}
 
 			return loc.qr;
@@ -338,7 +329,7 @@
 		*/		
 		public struct function includePluginFile(required string filePath, required boolean cacheFile=0) {
 			var loc      = {};
-			var template = ReplaceNoCase(arguments.filePath, ExpandPath(localizator.settings.folder.plugins), "");
+			var template = ReplaceNoCase(arguments.filePath, ExpandPath(application.wheels.localizatorSettings.folder.plugins), "");
 
 			if ( arguments.cacheFile ) {
 				if ( !StructKeyExists(request, "localizator") || !StructKeyExists(request.localizator, "cache") ) {
@@ -595,7 +586,7 @@
 			var loc = {};
 
 			loc.type = "database";
-			loc.letters = model(get('localizatorLanguageTable')).findAll(select="Left(UPPER(text), 1) as firstLetter", order="text ASC");
+			loc.letters = model(application.wheels.localizatorLanguageTable).findAll(select="Left(UPPER(text), 1) as firstLetter", order="text ASC");
 
 			loc.texts = new query();
 			loc.texts.setAttributes(
@@ -608,9 +599,9 @@
 			loc.letters = loc.texts.getResult();
 			
 			if ( arguments.letter EQ "all") {
-				loc.texts = model(get('localizatorLanguageTable')).findAll(select="*, Left(UPPER(text), 1) as firstLetter", order="text ASC");	
+				loc.texts = model(application.wheels.localizatorLanguageTable).findAll(select="*, Left(UPPER(text), 1) as firstLetter", order="text ASC");	
 			} else {
-				loc.texts = model(get('localizatorLanguageTable')).findAll(select="*, Left(UPPER(text), 1) as firstLetter", where="text LIKE '#FORM.letter#%'", order="text ASC");
+				loc.texts = model(application.wheels.localizatorLanguageTable).findAll(select="*, Left(UPPER(text), 1) as firstLetter", where="text LIKE '#arguments.letter#%'", order="text ASC");
 			}
 
 			return loc;
@@ -628,8 +619,8 @@
 			loc.queryNew    = QueryNew("text,firstLetter", "VarChar,VarChar");
 			loc.i           = 0;
 
-			if ( FileExists(localizator.settings.files.repository) ) {
-				loc.repository = includePluginFile(localizator.settings.files.repository);
+			if ( FileExists(application.wheels.localizatorSettings.files.repository) ) {
+				loc.repository = includePluginFile(application.wheels.localizatorSettings.files.repository);
 				if ( isStruct(loc.repository) && StructCount(loc.repository) ) {
 					for (loc.key IN loc.repository) {
 						loc.i++;
@@ -680,15 +671,15 @@
 		public string function generateLocalizationFiles() {
 			var loc = {};
 			
-			loc.query   = model(get("localizatorLanguageTable")).findAll();
-			loc.message = "No localization files were generated";
+			loc.query   = model(application.wheels.localizatorLanguageTable).findAll();
+			loc.message = l("No localization files were generated");
 
 			if ( loc.query.recordCount ) {
 				loc.texts = "";
 
-				FileDelete(localizator.settings.files.repository);
+				FileDelete(application.wheels.localizatorSettings.files.repository);
 
-				loc.file = createFile(localizator.settings.files.repository);
+				loc.file = createFile(application.wheels.localizatorSettings.files.repository);
 
 				for (loc.x = 1; loc.x <= loc.query.recordCount; loc.x++) {
 					loc.text  = loc.query.text[loc.x];
@@ -698,11 +689,11 @@
 					}
 				}
 
-				loc.file_text = appendTextToFile(localizator.settings.files.repository, loc.texts);
+				loc.file_text = appendTextToFile(application.wheels.localizatorSettings.files.repository, loc.texts);
 
-				for (loc.i = 1; loc.i <= ListLen(localizator.settings.files.locales); loc.i++) {
+				for (loc.i = 1; loc.i <= ListLen(application.wheels.localizatorSettings.files.locales); loc.i++) {
 					loc.texts = "";
-					loc.item  = ListGetAt(localizator.settings.files.locales, loc.i);
+					loc.item  = ListGetAt(application.wheels.localizatorSettings.files.locales, loc.i);
 
 					FileDelete(loc.item);
 
@@ -720,7 +711,7 @@
 					loc.file_text = appendTextToFile(loc.item, loc.texts);
 				}
 
-				loc.message = "Localization files generated successfully";
+				loc.message = l("Localization file(s) generated successfully");
 			}
 
 			return loc.message;
@@ -735,8 +726,8 @@
 
 			loc.form = arguments.params.localizationForm;
 
-			if ( isDefined("loc.form.text") AND !Len(loc.form.text) ) {
-				redirectTo(back=true, message="Text is mandatory", messageType="error");
+			if ( !isDefined("loc.form.text") || (isDefined("loc.form.text") && !Len(loc.form.text)) ) {
+				redirectTo(back=true, message=l("Text is mandatory"), messageType="error", addList=true);
 			}
 
 			loc.text      = loc.form.text;
@@ -751,47 +742,47 @@
 
 			for (loc.i IN loc.form) {
 				if (loc.i == "text") {
-					loc.localized = '<cfset loc["' & loc.text & '"] = "">';
-					if ( ListLen(localizator.settings.files.repository) ) {
-						loc.file.filePath = localizator.settings.files.repository;
+					loc.text_default = '<cfset loc["' & loc.text & '"] = "">';
+					if ( ListLen(application.wheels.localizatorSettings.files.repository) ) {
+						loc.file.filePath = application.wheels.localizatorSettings.files.repository;
 						loc.file.struct   = includePluginFile(loc.file.filePath);
 						loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
 						if ( !loc.file.check ) {
-							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.localized);
-							loc.message = loc.message & "Text added to <u>repository</u> successfully. ";
+							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_default);
+							loc.message = loc.message & l("Text added to <u>repository.cfm</u> successfully. ");
 						} else {
-							loc.message = loc.message & "Text already in your <u>repository</u> file. ";
+							loc.message = loc.message & l("Text already in your <u>repository</u> file. ");
 						}
 					}
 
 				} else {
-					loc.language = ListFindNoCase(localizator.settings.files.locales, ExpandPath(localizator.settings.folder.locales & "\" & loc.i & ".cfm"));
+					loc.language = ListFindNoCase(application.wheels.localizatorSettings.files.locales, ExpandPath(application.wheels.localizatorSettings.folder.locales & "\" & loc.i & ".cfm"));
 					if ( loc.language ) {
 						if ( loc.isDynamic ) {
 							loc.form[loc.i] = replaceVariable(loc.form[loc.i]);
 						}
-						loc.localized     = '<cfset loc["' & loc.text & '"] = "' & loc.form[loc.i] & '">';
-						loc.file.filePath = ListGetAt(localizator.settings.files.locales, loc.language);
+						loc.text_localized     = '<cfset loc["' & loc.text & '"] = "' & loc.form[loc.i] & '">';
+						loc.file.filePath = ListGetAt(application.wheels.localizatorSettings.files.locales, loc.language);
 						loc.file.struct   = includePluginFile(loc.file.filePath);
 						loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
 						if ( !loc.file.check ) {
-							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.localized);
-							loc.message = loc.message & "Text added to <u>#loc.i#.cfm</u> successfully. ";
+							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_localized);
+							loc.message = loc.message & l("Text added to <u>{#loc.i#}.cfm</u> successfully. ");
 						} else {
-							loc.message = loc.message & "Text already in your <u>#loc.i#.cfm</u> file. ";
+							loc.message = loc.message & l("Text already in your <u>{#loc.i#}.cfm</u> file. ");
 						}
 					}
 				}
 			}
 
-			if ( ListLen(localizator.settings.languages.database) ) {
+			if ( ListLen(application.wheels.localizatorSettings.languages.database) ) {
 				loc.database.check = checkTextInDatabase(loc.text);
 				if ( !loc.database.check.recordCount ) {
 					loc.form.text    = loc.text;
-					loc.database.obj = model(localizator.settings.localizationTable).create(loc.form);
-					loc.message = loc.message & "Text added to <u>database</u> successfully. ";
+					loc.database.obj = model(application.wheels.localizatorSettings.localizationTable).create(loc.form);
+					loc.message = loc.message & l("Text added to <u>database</u> successfully. ");
 				} else {
-					loc.message = loc.message & "Text already in your <u>database</u>. ";
+					loc.message = loc.message & l("Text already in your <u>database</u>. ");
 				}
 			}
 
@@ -814,15 +805,15 @@
 			var loc = {};
 			
 			if ( isDefined("arguments.params.key") ) {
-				loc.struct        = model(get('localizatorLanguageTable')).findByKey(arguments.params.key);
+				loc.struct        = model(application.wheels.localizatorLanguageTable).findByKey(arguments.params.key);
 				loc.struct.update = true;
 			
 			} else if ( isDefined("arguments.params.text") ) {
 				loc.struct = {};
 				loc.text   = arguments.params.text;
 				
-				for (loc.i = 1; loc.i <= ListLen(localizator.settings.files.locales); loc.i++) {
-					loc.file.filePath = ListGetAt(localizator.settings.files.locales, loc.i);
+				for (loc.i = 1; loc.i <= ListLen(application.wheels.localizatorSettings.files.locales); loc.i++) {
+					loc.file.filePath = ListGetAt(application.wheels.localizatorSettings.files.locales, loc.i);
 					loc.language      = ReplaceNoCase(Mid(loc.file.filePath, loc.file.filePath.lastIndexOf("\")+2, loc.file.filePath.lastIndexOf(".")), ".cfm", "");
 					loc.file.struct   = includePluginFile(loc.file.filePath);
 					loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
@@ -867,19 +858,19 @@
 			}
 
 			for (loc.i IN loc.form) {
-				loc.language = ListFindNoCase(localizator.settings.files.locales, ExpandPath(localizator.settings.folder.locales & "\" & loc.i & ".cfm"));
+				loc.language = ListFindNoCase(application.wheels.localizatorSettings.files.locales, ExpandPath(application.wheels.localizatorSettings.folder.locales & "\" & loc.i & ".cfm"));
 				if ( loc.language ) {
 					if ( loc.isDynamic ) {
 						loc.form[loc.i] = replaceVariable(loc.form[loc.i]);
 					}
-					loc.localized     = '<cfset loc["' & loc.text & '"] = "' & loc.form[loc.i] & '">';
-					loc.file.filePath = ListGetAt(localizator.settings.files.locales, loc.language);
+					loc.text_localized     = '<cfset loc["' & loc.text & '"] = "' & loc.form[loc.i] & '">';
+					loc.file.filePath = ListGetAt(application.wheels.localizatorSettings.files.locales, loc.language);
 					loc.file.struct   = includePluginFile(loc.file.filePath);
 					loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
 
 					if ( !loc.file.check ) {
-						loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.localized);
-						loc.message         = loc.message & "Text added to <u>#loc.i#.cfm</u> successfully. ";
+						loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_localized);
+						loc.message         = loc.message & l("Text added to <u>{#loc.i#}.cfm</u> successfully. ");
 					
 					} else if ( IsStruct(loc.file.struct) ) {
 						loc.textLine  = "";
@@ -892,7 +883,7 @@
 
 							if ( loc.textParsed == loc.text ) {
 								loc.localizedTextFound = 1;
-								loc.textLine = loc.textLine & loc.localized & Chr(13) & Chr(10);
+								loc.textLine = loc.textLine & loc.text_localized & Chr(13) & Chr(10);
 							
 							} else {
 								loc.textLine = loc.textLine & loc.line & Chr(13) & Chr(10);
@@ -903,17 +894,17 @@
 
 						if ( isDefined("loc.localizedTextFound") && loc.localizedTextFound ) {
 							FileWrite(loc.file.filePath, loc.textLine, "utf-8");
-							loc.message = loc.message & "<u>#loc.i#.cfm</u> updated successfully. ";
+							loc.message = loc.message & l("<u>{#loc.i#}.cfm</u> file updated successfully. ");
 						}
 					}
 				}
 			}
 
-			if ( ListLen(localizator.settings.languages.database) ) {
-				loc.database.obj = model(get('localizatorLanguageTable')).findByKey(loc.key);
+			if ( ListLen(application.wheels.localizatorSettings.languages.database) ) {
+				loc.database.obj = model(application.wheels.localizatorLanguageTable).findByKey(loc.key);
 				
 				if ( loc.database.obj.update(loc.form) ) {
-					loc.message = loc.message & "<u>Database</u> updated successfully. ";
+					loc.message = loc.message & l("<u>Database</u> updated successfully. ");
 				}
 			}
 
@@ -937,12 +928,12 @@
 
 			if ( isDefined("arguments.params.key") && isNumeric(arguments.params.key)) {
 				loc.key = arguments.params.key;
-				if ( ListLen(localizator.settings.languages.database) ) {
-					loc.database.obj = model(get('localizatorLanguageTable')).findByKey(loc.key);
+				if ( ListLen(application.wheels.localizatorSettings.languages.database) ) {
+					loc.database.obj = model(application.wheels.localizatorLanguageTable).findByKey(loc.key);
 					loc.text         = loc.database.obj.text;
 
 					if ( loc.database.obj.delete(softDelete=false) ) {
-						loc.message = loc.message & "Text in <u>database</u> deleted successfully. ";
+						loc.message = loc.message & l("Text in <u>database</u> deleted successfully. ");
 					}
 				}
 			}
@@ -951,8 +942,8 @@
 				loc.text = arguments.params.text;
 			}
 
-			if ( ListLen(localizator.settings.files.repository) ) {
-				loc.file.filePath = localizator.settings.files.repository;
+			if ( ListLen(application.wheels.localizatorSettings.files.repository) ) {
+				loc.file.filePath = application.wheels.localizatorSettings.files.repository;
 				loc.file.struct   = includePluginFile(loc.file.filePath);
 				loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
 				
@@ -977,14 +968,14 @@
 
 					if ( isDefined("loc.foundInRepository") && loc.foundInRepository ) {
 						FileWrite(loc.file.filePath, loc.textLine, "utf-8");
-						loc.message = loc.message & "Text in <u>repository</u> file deleted successfully. ";
+						loc.message = loc.message & l("Text in <u>repository.cfm</u> file deleted successfully. ");
 					}
 				}
 			}
 
-			for (loc.i = 1; loc.i <= ListLen(localizator.settings.files.locales); loc.i++) {
+			for (loc.i = 1; loc.i <= ListLen(application.wheels.localizatorSettings.files.locales); loc.i++) {
 				loc.foundInLocaleFile = 0;
-				loc.file.filePath     = ListGetAt(localizator.settings.files.locales, loc.i);
+				loc.file.filePath     = ListGetAt(application.wheels.localizatorSettings.files.locales, loc.i);
 				loc.language          = ReplaceNoCase(Mid(loc.file.filePath, loc.file.filePath.lastIndexOf("\")+2, loc.file.filePath.lastIndexOf(".")), ".cfm", "");
 				loc.file.struct       = includePluginFile(loc.file.filePath);
 				loc.file.check        = checkTextInFile(loc.file.struct, loc.text);
@@ -1010,7 +1001,7 @@
 
 					if ( loc.foundInLocaleFile ) {
 						FileWrite(loc.file.filePath, loc.textLine, "utf-8");
-						loc.message = loc.message & "Text in <u>#loc.language#.cfm</u> deleted successfully. ";
+						loc.message = loc.message & l("Text in <u>{#loc.language#}.cfm</u> file deleted successfully. ");
 					}
 				}
 			}

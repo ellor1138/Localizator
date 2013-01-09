@@ -5,7 +5,7 @@
 				<thead>
 					<tr>
 						<th colspan="3" style="text-align:right;">
-							<form action="#loc.url###edit" method="post" class="form-horizontal" style="margin:0; padding:0;">
+							<form action="#loc.config.url###edit" method="post" class="form-horizontal" style="margin:0; padding:0;">
 								<div class="control-group" style="margin:0; padding:0;">
 									<label class="control-label" style="text-align:left; font-weight:bold;">Filter by first letter</label>
 									<div class="controls" style="margin:0; padding:0;">
@@ -36,7 +36,7 @@
 						<tr class="#tr_class#">
 							<td style="width:100%; vertical-align:middle;">#loc.localizations.texts.text#</td>
 							<td style="text-align:center;">
-								<form action="#loc.url###edit" method="post" style="margin:0; padding:0;">
+								<form action="#loc.config.url###edit" method="post" style="margin:0; padding:0;">
 									<cfif isDefined("loc.localizations.texts.id")>
 										<input type="hidden" name="type" value="edit">
 										<input type="hidden" name="key" value="#loc.localizations.texts.id#">
@@ -48,7 +48,7 @@
 								</form>
 							</td>
 							<td style="text-align:center;">
-								<form action="#loc.url###edit" method="post" style="margin:0; padding:0;">
+								<form action="#loc.config.url###edit" method="post" style="margin:0; padding:0;">
 									<cfif isDefined("loc.localizations.texts.id")>
 										<input type="hidden" name="type" value="delete">
 										<input type="hidden" name="key" value="#loc.localizations.texts.id#">
@@ -65,7 +65,7 @@
 			</table>
 		<cfelse>
 			<div class="alert alert-error" style="text-align:center;">
-				<cfif pluginSettings.isDB>
+				<cfif loc.config.settings.isDB>
 					There is no text in your localization table.
 				<cfelse>
 					There is no text in your localization files.

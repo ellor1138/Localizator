@@ -5,7 +5,7 @@
 	
 	<div class="span6">
 		<div class="well well-small" style="padding:20px 10px 0;">
-			<form action="#loc.url###edit" method="post" name="localizationForm" class="form-horizontal">
+			<form action="#loc.config.url###edit" method="post" name="localizationForm" class="form-horizontal">
 				<cfif isDefined("localizationForm.update")>
 					<input type="hidden" name="type" value="update">
 					<cfset txtButton = "Update">
@@ -24,14 +24,14 @@
 						</cfif>
 					</div>
 				</div>
-				<cfif ListLen("pluginSettings.languages.locales")>
-					<cfloop list="#pluginSettings.languages.locales#" index="loc.language">
+				<cfif ListLen("loc.config.settings.languages.locales")>
+					<cfloop list="#loc.config.settings.languages.locales#" index="loc.language">
 						<div class="control-group">
 							<label class="control-label"><strong>#GetLocaleDisplayName(loc.language, getLocale())#</strong></label>
 							<div class="controls">
 								<input type="text" name="localizationForm[#loc.language#]" value="#isDefined('localizationForm.#loc.language#') ? localizationForm[loc.language] : ''#" />
 							</div>
-							<cfif loc.language EQ ListLast(pluginSettings.languages.locales)>
+							<cfif loc.language EQ ListLast(loc.config.settings.languages.locales)>
 								<div class="controls">
 									<input type="submit" value="#txtButton#" class="btn" style="margin-top:20px;">
 									<cfif isDefined("localizationForm.update")>

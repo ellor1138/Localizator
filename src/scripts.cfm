@@ -1,13 +1,16 @@
 <cfoutput>
 	<cfscript>
 		loc = {};
-		
+
+		loc.congig        = {};
 		loc.message       = {};
 		loc.localizations = {};
-		loc.url           = "#CGI.script_name#?controller=wheels&action=wheels&view=plugins&name=#pluginSettings.plugin.name#";
+
+		loc.config.settings = application.wheels.localizatorSettings;
+		loc.config.url      = "#CGI.script_name#?controller=wheels&action=wheels&view=plugins&name=#loc.config.settings.plugin.name#";
 
 		// GET TEXTS
-		if ( pluginSettings.isDB ) {
+		if ( loc.config.settings.isDB ) {
 			loc.localizations = getLocalizationsFromDatabase(params.letter);
 			localizationForm  = model(get('localizatorLanguageTable')).new();
 		} else {
@@ -15,7 +18,7 @@
 		}
 
 		// GENERATE LOCALIZATION FILES
-		if ( isDefined("params.type") && params.type == "generate" && pluginSettings.isDB ) {
+		if ( isDefined("params.type") && params.type == "generate" && loc.config.settings.isDB ) {
 			loc.message.generator = generateLocalizationFiles();
 		}
 

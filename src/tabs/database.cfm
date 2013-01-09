@@ -1,20 +1,20 @@
 ﻿<cfoutput>
-	<div class="#pluginSettings.isDB EQ true ? 'tab-pane active' : 'tab-pane'#" id="Database">
+	<div class="#loc.config.settings.isDB EQ true ? 'tab-pane active' : 'tab-pane'#" id="Database">
 		
-		<cfif pluginSettings.isDB>
+		<cfif loc.config.settings.isDB>
 			<div class="alert alert-success" style="margin-bottom:0; padding:10px 8px 0;">
 				<h4>Datasource found!</h4>
 				<ul>
-					<li>#pluginSettings.dataSource#</li>
+					<li>#loc.config.settings.dataSource#</li>
 				</ul>
 				<h4>Localization table found!</h4>
 				<ul>
 					<li>#get("localizatorLanguageTable")#</li>
 					
-					<cfif isDefined("pluginSettings.languages.database") AND ListLen(pluginSettings.languages.database)>
-						<li>#pluralize(word="Language", count=ListLen(pluginSettings.languages.database), returnCount=false)# configured:
+					<cfif isDefined("loc.config.settings.languages.database") AND ListLen(loc.config.settings.languages.database)>
+						<li>#pluralize(word="Language", count=ListLen(loc.config.settings.languages.database), returnCount=false)# configured:
 							<ul>
-								<cfloop list="#pluginSettings.languages.database#" index="loc.langue">
+								<cfloop list="#loc.config.settings.languages.database#" index="loc.langue">
 									<li>#GetLocaleDisplayName(loc.langue, getLocale())#</li>
 								</cfloop>
 							</ul>
@@ -36,7 +36,7 @@
 				</cfif>
 			</div>
 			
-		<cfelseif !pluginSettings.isAvailableDatabase>
+		<cfelseif !loc.config.settings.isAvailableDatabase>
 			<div class="alert alert-error" style="margin-bottom:0; padding:10px 8px 0;">
 				<h4>Datasource <strong style="color:##F30;">not found</strong></h4>
 				<ol>
@@ -44,7 +44,7 @@
 					<li>Reload your application.</li>
 				</ol>
 			</div>
-		<cfelseif !pluginSettings.isAvailableDatabaseTable>
+		<cfelseif !loc.config.settings.isAvailableDatabaseTable>
 			<div class="alert alert-error" style="margin-bottom:0; padding:10px 8px 0;">
 				<h4>Table <strong style="color:##F30;">not found</strong></h4>
 				<ol>
