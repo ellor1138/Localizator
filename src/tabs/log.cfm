@@ -2,7 +2,7 @@
 	<div class="tab-pane" id="Log">
 		<dl class="dl-horizontal">
 			<dt>Version 2.0</dt>
-			<dd>January 09, 2013
+			<dd>January 14, 2013
 				<ul>
 					<li>Plugin re-written from scratch</li>
 					<li>Plugin settings and detection are set when you reload the application</li>
