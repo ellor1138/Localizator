@@ -5,8 +5,9 @@
 			<dd>January 09, 2013
 				<ul>
 					<li>Plugin re-written from scratch</li>
-					<li>Plugin settings are set when you reload the application</li>
+					<li>Plugin settings and detection are set when you reload the application</li>
 					<li>Major speed improvement with database and localization file(s)</li>
+					<li>Addition of plugin unit test scripts</li>
 				</ul>
 			</dd>
 			<dt>Version 1.3</dt>
