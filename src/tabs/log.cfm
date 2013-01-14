@@ -1,6 +1,15 @@
 ﻿<cfoutput>
 	<div class="tab-pane" id="Log">
 		<dl class="dl-horizontal">
+			<dt>Version 2.0</dt>
+			<dd>January 14, 2013
+				<ul>
+					<li>Plugin re-written from scratch</li>
+					<li>Plugin settings and detection are set when you reload the application</li>
+					<li>Major speed improvement with database and localization file(s)</li>
+					<li>Addition of plugin unit test scripts</li>
+				</ul>
+			</dd>
 			<dt>Version 1.3</dt>
 			<dd>December 21, 2012
 				<ul>

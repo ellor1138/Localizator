@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 	<head>
 		<meta charset="utf-8">
-		<title><cfoutput>#capitalize(loc.plugin.name)# #loc.plugin.version#</cfoutput></title>
+		<title><cfoutput>#capitalize(loc.config.settings.plugin.name)# #loc.config.settings.plugin.version#</cfoutput></title>
 		
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
@@ -17,7 +17,7 @@
 			<div class="container"> 
 				
 				<div class="hero-unit">
-					<h1>#capitalize(loc.plugin.name)# #loc.plugin.version#</h1>
+					<h1>#capitalize(loc.config.settings.plugin.name)# #loc.config.settings.plugin.version#</h1>
 					<p>This plugin offer a complete solution to add localization (translation) capabilities to your application.</p>
 					<h2>Benefits of using this plugin:</h2>
 					<ul class="small">
@@ -65,8 +65,9 @@
 						<h1>&nbsp;</h1>
 						
 						<ul class="nav nav-tabs" id="subtabs">
-							<li class="active"><a href="##Database" data-toggle="tab">Localization database</a></li>
-							<li><a href="##Files" data-toggle="tab">Localization files</a></li>
+
+							<li class="#loc.config.settings.isDB EQ true ? 'active' : ''#"><a href="##Database" data-toggle="tab">Localization database</a></li>
+							<li class="#loc.config.settings.isDB NEQ true ? 'active' : ''#"><a href="##Files" data-toggle="tab">Localization files</a></li>
 						</ul>
 						
 						<div class="tab-content" id="subcontent">
@@ -78,27 +79,15 @@
 				
 				<a id="edit"></a>
 				
-				<cfif isDefined("loc.message.formTextDB") OR isDefined("loc.message.formTextFile") OR isDefined("loc.message.delete") OR flashKeyExists("message")>
-					<cfif flashKeyExists("message")>
-						<cfset loc.message.formTextFile = flash("message")>
-						<cfset loc.message.type = flash('messageType')>
-					</cfif>
+				<cfif flashKeyExists("message")>
 					<div>&nbsp;</div>
-					<div class="alert alert-#loc.message.type#" style="text-align:center;">
-						<cfif isDefined("loc.message.formTextDB")>
-							#loc.message.formTextDB#
-						</cfif>
-						<cfif isDefined("loc.message.formTextFile")>
-							#loc.message.formTextFile#
-						</cfif>
-						<cfif isDefined("loc.message.delete")>
-							#loc.message.delete#
-						</cfif>
+					<div class="alert alert-#flash('messageType')#" style="text-align:center;">
+						#flash("message")#
 					</div>
 				</cfif>
 				
 				<div class="row">
-					<cfif loc.config.isDB>
+					<cfif loc.config.settings.isDB>
 						<cfinclude template="forms/database.cfm">
 					<cfelse>
 						<cfinclude template="forms/files.cfm">
