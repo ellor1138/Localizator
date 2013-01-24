@@ -6,7 +6,7 @@
 		loc.message       = {};
 		loc.localizations = {};
 
-		loc.config.settings = application.wheels.localizatorSettings;
+		loc.config.settings = getLocalizatorPluginSettings();
 		loc.config.url      = "#CGI.script_name#?controller=wheels&action=wheels&view=plugins&name=#loc.config.settings.plugin.name#";
 
 		// GET TEXTS
