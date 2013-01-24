@@ -64,7 +64,7 @@
 				application.wheels.localizatorServerLocales = ListAppend(application.wheels.localizatorServerLocales, loc.serverLocales[loc.i].toString());
 			}
 
-			application.wheels.localizatorSettings = initPluginSettings();
+			application.wheels.localizatorSettings = initLocalizatorPluginSettings();
 
 			return this;
 		}
@@ -73,7 +73,7 @@
 		 * @hint Return plugin settings
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public struct function getPluginSettings() {
+		public struct function getLocalizatorPluginSettings() {
 			return application.wheels.localizatorSettings;
 		}
 
@@ -81,7 +81,7 @@
 		 * @hint Init plugin config
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public struct function initPluginSettings() {
+		public struct function initLocalizatorPluginSettings() {
 			var loc = {};
 			
 			loc.plugin = {};
