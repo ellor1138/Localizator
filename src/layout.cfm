@@ -46,6 +46,7 @@
 							<li><a href="##Harvester" data-toggle="tab">Harvester</a></li>
 							<li><a href="##Editor" data-toggle="tab">Editor</a></li>
 							<li><a href="##Generator" data-toggle="tab">Generator</a></li>
+							<li><a href="##Functions" data-toggle="tab">Functions</a></li>
 							<li><a href="##Log" data-toggle="tab">Change Log</a></li>
 							<li><a href="##Credits" data-toggle="tab">Credits</a></li>
 						</ul>
@@ -56,6 +57,7 @@
 							<cfinclude template="tabs/harvester.cfm">
 							<cfinclude template="tabs/editor.cfm">
 							<cfinclude template="tabs/generator.cfm">
+							<cfinclude template="tabs/functions.cfm">
 							<cfinclude template="tabs/log.cfm">
 							<cfinclude template="tabs/credits.cfm">
 						</div>

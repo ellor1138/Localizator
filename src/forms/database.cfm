@@ -2,7 +2,7 @@
 	<div class="span12">
 		<h1>Editor (Database and localization files)</h1>
 	</div>
-	
+
 	<div class="span6">
 		<div class="well well-small" style="padding:20px 10px 0;">
 			<!--- DATABASE FORM --->
@@ -46,6 +46,8 @@
 				</cfif>
 			</form>
 		</div>
+		
+		<cfinclude template="languages.cfm">
 	</div>
 	
 	<cfinclude template="list.cfm">

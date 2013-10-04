@@ -1,6 +1,27 @@
 ﻿<cfoutput>
 	<div class="tab-pane" id="Log">
 		<dl class="dl-horizontal">
+			<dt>Version 2.3</dt>
+			<dd>September 20, 2013
+				<ul>
+					<li>Add localizatorGetAvailableLocaleid function</li>
+					<li>Add localizatorAddLocaleid function</li>
+					<li>Add localizatorDeleteLocaleid function</li>
+					<li>Update the Editor to add/delete new language</li>
+				</ul>
+			</dd>
+			<dt>Version 2.2</dt>
+			<dd>August 27, 2013
+				<ul>
+					<li>Add localizatorCheckForErrors function</li>
+				</ul>
+			</dd>
+			<dt>Version 2.1</dt>
+			<dd>July 22, 2013
+				<ul>
+					<li>Add localizatorGetLanguages function</li>
+				</ul>
+			</dd>
 			<dt>Version 2.0</dt>
 			<dd>January 14, 2013
 				<ul>

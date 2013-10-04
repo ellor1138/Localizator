@@ -36,6 +36,19 @@
 						<tr class="#tr_class#">
 							<td style="width:100%; vertical-align:middle;">#loc.localizations.texts.text#</td>
 							<td style="text-align:center;">
+								<cfset x = 0>
+								<cfloop collection="#localizatorGetLanguages()#" item="localeid">
+									<cfif Len(loc.localizations.texts["#localeid#"][currentrow])>
+										<cfset x += 1>
+									</cfif>
+								</cfloop>
+								<cfif x GT 1>
+									<span class="label label-success"><i class="icon-white icon-ok"></i></span>
+								<cfelse>
+									<span class="label label-important"><i class="icon-white icon-remove"></i></span>
+								</cfif>
+							</td>
+							<td style="text-align:center;">
 								<form action="#loc.config.url###edit" method="post" style="margin:0; padding:0;">
 									<cfif isDefined("loc.localizations.texts.id")>
 										<input type="hidden" name="type" value="edit">
@@ -44,7 +57,7 @@
 										<input type="hidden" name="type" value="edit">
 										<input type="hidden" name="text" value="#loc.localizations.texts.text#">
 									</cfif>
-									<input type="submit" value="Edit" class="btn">
+									<input type="submit" value="Edit" class="btn btn-small">
 								</form>
 							</td>
 							<td style="text-align:center;">
@@ -56,7 +69,7 @@
 										<input type="hidden" name="type" value="delete">
 										<input type="hidden" name="text" value="#loc.localizations.texts.text#">
 									</cfif>
-									<input type="submit" value="Delete" class="btn delete">
+									<input type="submit" value="Delete" class="btn btn-small delete">
 								</form>
 							</td>
 						</tr>

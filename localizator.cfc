@@ -74,7 +74,7 @@
 		 * ---------------------------------------------------------------------------------------------------
 		*/
 		public struct function getLocalizatorPluginSettings() {
-			return application.wheels.localizatorSettings;
+			return initLocalizatorPluginSettings();
 		}
 
 		/* ---------------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@
 			loc.plugin = {};
 			loc.plugin.author        = "Simon Allard";
 			loc.plugin.name          = "localizator";
-			loc.plugin.version       = "2.0";
+			loc.plugin.version       = "2.3";
 			loc.plugin.compatibility = "1.1.8";
 			loc.plugin.project       = "https://github.com/ellor1138/Localizator";
 			loc.plugin.documentation = "https://github.com/ellor1138/Localizator/wiki";
@@ -160,6 +160,172 @@
 			loc.localized = initLocalization(loc);
 
 			return loc.localized.text;
+		}
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * @hint Public function to get struct of languages
+		 * ---------------------------------------------------------------------------------------------------
+		*/
+		public any function localizatorGetLanguages(string localeid) {
+			var loc = {};
+
+			loc.languages = {};
+			loc.database  = application.wheels.localizatorSettings.languages.database;
+			loc.files   = application.wheels.localizatorSettings.languages.locales;
+
+			loc.locales = ListLen(loc.database) GT ListLen(loc.files) ? loc.database : loc.files;
+
+			if ( isDefined("arguments.localeid") && Len(arguments.localeid) ) {
+				loc.localeid = arguments.localeid; // Language passed by function
+			
+			} else if ( isDefined("application.wheels.localizatorLanguageSession") && isStruct(session) && isDefined("session." & application.wheels.localizatorLanguageSession) ) {
+				loc.localeid = StructGet("session." & application.wheels.localizatorLanguageSession); // Language from session
+			
+			} else {
+				loc.localeid = application.wheels.localizatorLanguageDefault; // Language from default settings
+			}
+
+			if ( ListLen(loc.locales) ) {
+				for (loc.i = 1; loc.i <= ListLen(loc.locales); loc.i++) {
+					StructInsert(loc.languages, ListGetAt(loc.locales, loc.i), capitalize(GetLocaleDisplayName(ListGetAt(loc.locales, loc.i), loc.localeid)));
+					// StructInsert(loc.languages, ListGetAt(loc.locales, loc.i), capitalize(GetLocaleDisplayName(ListGetAt(loc.locales, loc.i), ListGetAt(loc.locales, loc.i))));
+				}
+			}
+
+			return loc.languages;
+		}
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * @hint Return aa struct of available server locales
+		 * ---------------------------------------------------------------------------------------------------
+		*/
+		public any function localizatorGetAvailableLocaleid(string localeid) {
+			var loc = {};
+
+			loc.locales = {};
+
+			if ( isDefined("arguments.localeid") && Len(arguments.localeid) ) {
+				loc.localeid = arguments.localeid; // Language passed by function
+			
+			} else if ( isDefined("application.wheels.localizatorLanguageSession") && isStruct(session) && isDefined("session." & application.wheels.localizatorLanguageSession) ) {
+				loc.localeid = StructGet("session." & application.wheels.localizatorLanguageSession); // Language from session
+			
+			} else {
+				loc.localeid = application.wheels.localizatorLanguageDefault; // Language from default settings
+			}
+
+			for (loc.i = 1; loc.i <= ListLen(application.wheels.localizatorServerLocales); loc.i++) {
+				StructInsert(loc.locales, ListGetAt(application.wheels.localizatorServerLocales, loc.i), capitalize(GetLocaleDisplayName(ListGetAt(application.wheels.localizatorServerLocales, loc.i), loc.localeid)));
+			}
+
+			return loc.locales;
+		}
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * @hint Create localeid column in database table & add localeid file to locales folder
+		 * ---------------------------------------------------------------------------------------------------
+		*/
+		public any function localizatorAddLocaleid(required string localeid) {
+			var loc = {};
+
+			loc.result  = false;
+			loc.columns = model(application.wheels.localizatorLanguageTable).columnNames();
+			loc.file    = ExpandPath(application.wheels.localizatorSettings.folder.locales & "\" & arguments.localeid & ".cfm");
+
+			// Add localeid column to table
+			if ( application.wheels.localizatorSettings.isAvailableDatabaseTable && !ListFind(loc.columns, arguments.localeid) ) {
+				loc.query = new query(); 
+
+				loc.query.setAttributes(
+					dataSource=get("dataSourceName"),
+					SQL="ALTER TABLE localizations ADD #arguments.localeid# VarChar(MAX)"
+				);
+				
+				loc.query   = loc.query.execute();
+				loc.result  = true;
+			}
+			
+			// Add localeid file to locales folder
+			if ( !FileExists(loc.file) ) {
+				loc.file = createFile(loc.file);
+				loc.read = FileRead(application.wheels.localizatorSettings.files.repository);
+				
+				FileWrite(loc.file, loc.read);
+
+				loc.result = true;
+			}
+			
+			application.wheels.localizatorSettings = initLocalizatorPluginSettings();
+
+			return loc.result;
+		}
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * @hint Delete localeid from databaase & locales folder
+		 * ---------------------------------------------------------------------------------------------------
+		*/
+		public any function localizatorDeleteLocaleid(required string localeid) {
+			var loc = {};
+
+			loc.result  = false;
+			loc.columns = model(application.wheels.localizatorLanguageTable).columnNames();
+			loc.file 	= ExpandPath(application.wheels.localizatorSettings.folder.locales & "\" & arguments.localeid & ".cfm");
+
+			// Delete localeid column from table
+			if ( application.wheels.localizatorSettings.isAvailableDatabaseTable && ListFind(loc.columns, arguments.localeid) ) {
+				loc.query = new query(); 
+
+				loc.query.setAttributes(
+					dataSource=get("dataSourceName"),
+					SQL="ALTER TABLE localizations DROP COLUMN #arguments.localeid#"
+				);
+				
+				loc.query  = loc.query.execute();
+				loc.result = true;
+			}
+
+			// Delete localeid file from locales folder
+			if ( FileExists(loc.file) ) {
+				FileDelete(loc.file);
+
+				loc.result = true;
+			}
+
+			application.wheels.localizatorSettings = initLocalizatorPluginSettings();
+			
+			return loc.result;
+		}
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * Public function to translated error messages
+		 * ---------------------------------------------------------------------------------------------------
+		*/
+		public void function localizatorCheckForErrors(required struct object, string localeid){
+			var loc = {};
+			
+			loc.obj = arguments.object;
+			
+			if ( isDefined("arguments.localeid") && Len(arguments.localeid) ) {
+				loc.localeid = arguments.localeid; // Language passed by function
+			
+			} else if ( isDefined("application.wheels.localizatorLanguageSession") && isStruct(session) && isDefined("session." & application.wheels.localizatorLanguageSession) ) {
+				loc.localeid = StructGet("session." & application.wheels.localizatorLanguageSession); // Language from session
+			
+			} else {
+				loc.localeid = application.wheels.localizatorLanguageDefault; // Language from default settings
+			}
+	
+			if ( loc.obj.errorCount() ) {
+				loc.errors = loc.obj.allErrors();
+				
+				for (loc.struct IN loc.errors) {
+					for (loc.key IN loc.struct) {
+						if ( loc.key == "message" ) {
+							StructInsert(loc.struct, "message", l(StructFind(loc.struct, "message"), loc.localeid), 1);
+						}
+					}
+				}
+			}	
 		}
 
 		/* ---------------------------------------------------------------------------------------------------
@@ -238,6 +404,7 @@
 			if ( ListLen(application.wheels.localizatorSettings.languages.database) ) {
 				loc.database.check = checkTextInDatabase(loc.text);
 				if ( !loc.database.check.recordCount ) {
+					loc[get("localizatorLanguageDefault")] = loc.text;
 					loc.database.obj = model(application.wheels.localizatorSettings.localizationTable).create(loc);
 				}
 			}
@@ -456,13 +623,13 @@
 			
 			loc.array = DirectoryList(ExpandPath(loc.folder), false, "name", "*.cfm");
 
-			if ( !ArrayFindNoCase(loc.array, loc.localeid & ".cfm") ) {
-				ArrayAppend(loc.array, loc.localeid);
-			}
+			// if ( ArrayFindNoCase(loc.array, loc.localeid & ".cfm") ) {
+			// 	ArrayAppend(loc.array, loc.localeid);
+			// }
 
 			loc.list      = ReplaceNoCase(ArrayToList(loc.array), ".cfm", "", "ALL");
 			loc.languages = validateLanguagesList(loc.list);
-			
+
 			return loc.languages;
 		}
 
@@ -506,7 +673,7 @@
 					loc.file = ExpandPath(loc.folder & "/" & loc.item & ".cfm");
 					
 					if ( !FileExists(loc.file) ) {
-						loc.file = createFile(loc.file);
+						// loc.file = createFile(loc.file);
 					}
 
 					ArrayAppend(loc.arrayNewList, loc.file);
@@ -581,26 +748,48 @@
 		 * @hint Get texts from database
 		 * ---------------------------------------------------------------------------------------------------
 		*/
-		public struct function getLocalizationsFromDatabase(required string letter){
+		public struct function getLocalizationsFromDatabase(required string letter="all"){
 			var loc = arguments;
 
 			loc.type = "database";
-			loc.letters = model(application.wheels.localizatorLanguageTable).findAll(select="Left(UPPER(text), 1) as firstLetter", order="text ASC");
+			// loc.letters = model(application.wheels.localizatorLanguageTable).findAll(select="LEFT(UPPER(text),1) as firstLetter", order="text ASC");
 
+			// loc.texts = new query();
+			// loc.texts.setAttributes(
+			// 	dbtype="query",
+			// 	QoQ=loc.letters,
+			// 	SQL="SELECT DISTINCT firstLetter FROM QoQ"
+			// );
+			
 			loc.texts = new query();
 			loc.texts.setAttributes(
-				dbtype="query",
-				QoQ=loc.letters,
-				SQL="SELECT DISTINCT firstLetter FROM QoQ"
+				datasource=get("dataSourceName"),
+				SQL="SELECT DISTINCT LEFT(UPPER(text),1) AS firstLetter FROM #application.wheels.localizatorLanguageTable#"
 			);
 			
 			loc.texts = loc.texts.execute();
 			loc.letters = loc.texts.getResult();
 			
 			if ( arguments.letter EQ "all") {
-				loc.texts = model(application.wheels.localizatorLanguageTable).findAll(select="*, Left(UPPER(text), 1) as firstLetter", order="text ASC");	
+				loc.texts = new query();
+				loc.texts.setAttributes(
+					datasource=get("dataSourceName"),
+					SQL="SELECT *, LEFT(UPPER(text),1) as firstLetter FROM #application.wheels.localizatorLanguageTable# ORDER BY text ASC"
+				);
+				loc.texts = loc.texts.execute();
+				loc.texts = loc.texts.getResult();
+
+				// loc.texts = model(application.wheels.localizatorLanguageTable).findAll(select="*, LEFT(UPPER(text),1) as firstLetter", order="text ASC");	
 			} else {
-				loc.texts = model(application.wheels.localizatorLanguageTable).findAll(select="*, Left(UPPER(text), 1) as firstLetter", where="text LIKE '#loc.letter#%'", order="text ASC");
+				loc.texts = new query();
+				loc.texts.setAttributes(
+					datasource=get("dataSourceName"),
+					SQL="SELECT *, LEFT(UPPER(text),1) as firstLetter FROM #application.wheels.localizatorLanguageTable# WHERE text LIKE '#loc.letter#%' ORDER BY text ASC"
+				);
+				loc.texts = loc.texts.execute();
+				loc.texts = loc.texts.getResult();
+				
+				// loc.texts = model(application.wheels.localizatorLanguageTable).findAll(select="*, LEFT(UPPER(text),1) as firstLetter", where="text LIKE '#loc.letter#%'", order="text ASC");
 			}
 
 			return loc;
@@ -748,9 +937,9 @@
 						loc.file.check    = checkTextInFile(loc.file.struct, loc.text);
 						if ( !loc.file.check ) {
 							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_default);
-							loc.message = loc.message & l("Text added to <u>repository.cfm</u> successfully. ");
+							loc.message = loc.message & l("Text added to <u>repository.cfm</u> successfully.&nbsp;");
 						} else {
-							loc.message = loc.message & l("Text already in your <u>repository</u> file. ");
+							loc.message = loc.message & l("Text already in your <u>repository</u> file.&nbsp;");
 						}
 					}
 
@@ -766,9 +955,9 @@
 						loc.file.check     = checkTextInFile(loc.file.struct, loc.text);
 						if ( !loc.file.check ) {
 							loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_localized);
-							loc.message         = loc.message & l("Text added to <u>{#loc.i#}.cfm</u> successfully. ");
+							loc.message         = loc.message & l("Text added to <u>{#loc.i#}.cfm</u> successfully.&nbsp;");
 						} else {
-							loc.message = loc.message & l("Text already in your <u>{#loc.i#}.cfm</u> file. ");
+							loc.message = loc.message & l("Text already in your <u>{#loc.i#}.cfm</u> file.&nbsp;");
 						}
 					}
 				}
@@ -779,9 +968,9 @@
 				if ( !loc.database.check.recordCount ) {
 					loc.form.text    = loc.text;
 					loc.database.obj = model(application.wheels.localizatorSettings.localizationTable).create(loc.form);
-					loc.message      = loc.message & l("Text added to <u>database</u> successfully. ");
+					loc.message      = loc.message & l("Text added to <u>database</u> successfully.&nbsp;");
 				} else {
-					loc.message = loc.message & l("Text already in your <u>database</u>. ");
+					loc.message = loc.message & l("Text already in your <u>database</u>.&nbsp;");
 				}
 			}
 
@@ -869,7 +1058,7 @@
 
 					if ( !loc.file.check ) {
 						loc.file.textAppend = appendTextToFile(loc.file.filePath, loc.text_localized);
-						loc.message         = loc.message & l("Text added to <u>{#loc.i#}.cfm</u> successfully. ");
+						loc.message         = loc.message & l("Text added to <u>{#loc.i#}.cfm</u> successfully.&nbsp;");
 					
 					} else if ( IsStruct(loc.file.struct) ) {
 						loc.textLine  = "";
@@ -893,7 +1082,7 @@
 
 						if ( isDefined("loc.localizedTextFound") && loc.localizedTextFound ) {
 							FileWrite(loc.file.filePath, loc.textLine, "utf-8");
-							loc.message = loc.message & l("<u>{#loc.i#}.cfm</u> file updated successfully. ");
+							loc.message = loc.message & l("<u>{#loc.i#}.cfm</u> file updated successfully.&nbsp;");
 						}
 					}
 				}
@@ -903,7 +1092,7 @@
 				loc.database.obj = model(application.wheels.localizatorLanguageTable).findByKey(loc.key);
 				
 				if ( loc.database.obj.update(loc.form) ) {
-					loc.message = loc.message & l("<u>Database</u> updated successfully. ");
+					loc.message = loc.message & l("<u>Database</u> updated successfully.&nbsp;");
 				}
 			}
 

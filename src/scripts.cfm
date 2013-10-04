@@ -41,5 +41,33 @@
 		if ( isDefined("params.type") && params.type == "delete" ) {
 			localizationForm = deleteTranslation(params);
 		}
+
+		// ADD LANGUAGE
+		if ( isDefined("params.type") && params.type == "addLanguage" ) {
+			createdLanguage = localizatorAddLocaleid(params.locales.localeid);
+
+			loc.config.settings = getLocalizatorPluginSettings();
+			
+			if ( createdLanguage ) {
+				flashInsert(message=l("Language created successfully"), messageType="success");
+
+			} else {
+				flashInsert(message=l("That language is already configured"), messageType="error");
+			}
+		}
+
+		// DELETE LANGUAGE
+		if ( isDefined("params.type") && params.type == "deleteLanguage" ) {
+			deletedLanguage = localizatorDeleteLocaleid(params.locales.localeid);
+
+			loc.config.settings = getLocalizatorPluginSettings();
+
+			if ( deletedLanguage ) {
+				flashInsert(message=l("Language deleted successfully"), messageType="success");
+
+			} else {
+				flashInsert(message=l("Unable to delete this language"), messageType="error");
+			}
+		}
 	</cfscript>
 </cfoutput>

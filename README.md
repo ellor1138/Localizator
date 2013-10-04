@@ -41,7 +41,7 @@ Problems or issues with this plugin can be found at https://github.com/ellor1138
 Largely inspired by Raúl Riera's Localizer plugin. https://github.com/raulriera/Localizer
 
 ## License
-Copyright 2012 Simon Allard
+Copyright 2013 Simon Allard
 				
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
