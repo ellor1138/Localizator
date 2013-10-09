@@ -21,12 +21,10 @@
 						</li>
 					</cfif>
 				</ul>
-				<cfif isDefined("loc.localizations.texts") AND loc.localizations.texts.recordCount>
+				
+				<cfif isDefined("loc.localizations.texts") AND loc.localizations.texts.recordCount AND isDefined("loc.config.settings.languages.locales") AND ListLen(loc.config.settings.languages.locales)>
 					<hr />
 					<p>There is #pluralize(word="entry", count=loc.localizations.texts.recordCount)# in the localizaton table.</p>
-				</cfif>
-				
-				<cfif isDefined("loc.localizations.texts") AND loc.localizations.texts.recordCount>
 					<div style="text-align:center;">
 						<form action="#loc.config.url###generate" method="post">
 							<input type="hidden" name="type" value="generate">

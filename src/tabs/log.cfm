@@ -1,6 +1,15 @@
 ﻿<cfoutput>
 	<div class="tab-pane" id="Log">
 		<dl class="dl-horizontal">
+			<dt>Version 2.4</dt>
+			<dd>October 9, 2013
+				<ul>
+					<li>Now compatible with Lobot plugin<br />
+					<a href="https://github.com/ellor1138/Lobot" target="_blank">https://github.com/ellor1138/Lobot</a><br />
+					<a href="http://cfwheels.org/plugins/listing/95" target="_blank">http://cfwheels.org/plugins/listing/95</a>
+					</li>
+				</ul>
+			</dd>
 			<dt>Version 2.3</dt>
 			<dd>September 20, 2013
 				<ul>

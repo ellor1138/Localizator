@@ -9,12 +9,8 @@
 		loc.config.settings = getLocalizatorPluginSettings();
 		loc.config.url      = "#CGI.script_name#?controller=wheels&action=wheels&view=plugins&name=#loc.config.settings.plugin.name#";
 
-		// GET TEXTS
 		if ( loc.config.settings.isDB ) {
-			loc.localizations = getLocalizationsFromDatabase(params.letter);
 			localizationForm  = model(get('localizatorLanguageTable')).new();
-		} else {
-			loc.localizations = getLocalizationsFromFile(params.letter);
 		}
 
 		// GENERATE LOCALIZATION FILES
@@ -68,6 +64,13 @@
 			} else {
 				flashInsert(message=l("Unable to delete this language"), messageType="error");
 			}
+		}
+
+		// GET TEXTS
+		if ( loc.config.settings.isDB ) {
+			loc.localizations = getLocalizationsFromDatabase(params.letter);
+		} else {
+			loc.localizations = getLocalizationsFromFile(params.letter);
 		}
 	</cfscript>
 </cfoutput>

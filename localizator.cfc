@@ -87,7 +87,7 @@
 			loc.plugin = {};
 			loc.plugin.author        = "Simon Allard";
 			loc.plugin.name          = "localizator";
-			loc.plugin.version       = "2.3";
+			loc.plugin.version       = "2.4";
 			loc.plugin.compatibility = "1.1.8";
 			loc.plugin.project       = "https://github.com/ellor1138/Localizator";
 			loc.plugin.documentation = "https://github.com/ellor1138/Localizator/wiki";

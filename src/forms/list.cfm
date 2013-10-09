@@ -52,7 +52,11 @@
 								<form action="#loc.config.url###edit" method="post" style="margin:0; padding:0;">
 									<cfif isDefined("loc.localizations.texts.id")>
 										<input type="hidden" name="type" value="edit">
-										<input type="hidden" name="key" value="#loc.localizations.texts.id#">
+										<cfif isDefined("application.wheels.lobotProtectionIsEnabled") AND application.wheels.lobotProtectionIsEnabled>
+											<input type="hidden" name="key" value="#lobotEncryptKey(loc.localizations.texts.id)#">
+										<cfelse>
+											<input type="hidden" name="key" value="#loc.localizations.texts.id#">
+										</cfif>
 									<cfelse>
 										<input type="hidden" name="type" value="edit">
 										<input type="hidden" name="text" value="#loc.localizations.texts.text#">
@@ -64,7 +68,11 @@
 								<form action="#loc.config.url###edit" method="post" style="margin:0; padding:0;">
 									<cfif isDefined("loc.localizations.texts.id")>
 										<input type="hidden" name="type" value="delete">
-										<input type="hidden" name="key" value="#loc.localizations.texts.id#">
+										<cfif isDefined("application.wheels.lobotProtectionIsEnabled") AND application.wheels.lobotProtectionIsEnabled>
+											<input type="hidden" name="key" value="#lobotEncryptKey(loc.localizations.texts.id)#">
+										<cfelse>
+											<input type="hidden" name="key" value="#loc.localizations.texts.id#">
+										</cfif>
 									<cfelse>
 										<input type="hidden" name="type" value="delete">
 										<input type="hidden" name="text" value="#loc.localizations.texts.text#">
