@@ -16,6 +16,8 @@
 			</li>
 		</ul>
 		<ul>
+			<li>Add/delete language to your database table and locales folder simply by using the form below. This will add the proper column to your database table and create the proper localization file filled with the repository file text.</li>
+			<li style="list-style:none;"><strong>OR</strong></li>
 			<li>To use the editor with a database:
 				<ul>
 					<li>Configure your localization table with at least these columns:

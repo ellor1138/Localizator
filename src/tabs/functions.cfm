@@ -31,7 +31,7 @@
 				</dl>
 			</li>
 			<li><b>localizatorGetAvailableLocaleid(string localeid)</b>
-				<div style="margin-top:10px;">This function will return a struct that you can use to populate a drop down menu with available localeid server. The localeid argument let you return the localeid display name in the language you need.</div>
+				<div style="margin-top:10px;">This function will return a struct that you can use to populate a drop down menu with available  server's localeid. The localeid argument let you return the localeid display name in the language you need.</div>
 				<dl class="well well-small" style="display:inline-block; margin-bottom:0;">
 					<dt>How to use with the select form helper:</dt>
 					<dd>##select(label="label", objectName="objectName", property="property", options=<b>localizatorGetAvailableLocaleid()</b>)##</dd>
@@ -197,17 +197,23 @@
 			<li><b>localizatorAddLocaleid(required string localeid)</b>
 				<div style="margin-top:10px;">This function will add localeid column to the database table & create a localeid file in locales plugin folder. The new localeid file will be filled with the repository file text.</div>
 				<dl class="well well-small" style="display:inline-block; margin-bottom:0;">
-					<dt>How to use with the select form helper:</dt>
-					<dd>##localizatorAddLocaleid("fr_CA")##</dd>
-					<dt>This will add a new column ("fr_CA" VarChar(Max)) in your database table &amp; a new localeid file ("fr_CA.cfm") in the locales plugin folder.</dt>
-					<dd></dd>
+					<dt>How to use this function in your controller:</dt>
+					<dd>
+						public function addLanguage(required string localeid) {<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;localizatorAddLocaleid(arguments.localeid);<br />
+						}
+					</dd>
 				</dl>
 			</li>
 			<li><b>localizatorDeleteLocaleid(required string localeid)</b>
 				<div style="margin-top:10px;">This function will delete the localeid column from the database table & delete the localeid file from the locales plugin folder.</div>
 				<dl class="well well-small" style="display:inline-block; margin-bottom:0;">
-					<dt>How to use with the select form helper:</dt>
-					<dd>##localizatorDeleteLocaleid("fr_CA")##</dd>
+					<dt>How to use this function in your controller:</dt>
+					<dd>
+						public function deleteLanguage(required string localeid) {<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;localizatorDeleteLocaleid(arguments.localeid);<br />
+						}
+					</dd>
 				</dl>
 			</li>
 		</ul>

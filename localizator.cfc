@@ -87,7 +87,7 @@
 			loc.plugin = {};
 			loc.plugin.author        = "Simon Allard";
 			loc.plugin.name          = "localizator";
-			loc.plugin.version       = "2.4";
+			loc.plugin.version       = "2.5";
 			loc.plugin.compatibility = "1.1.8";
 			loc.plugin.project       = "https://github.com/ellor1138/Localizator";
 			loc.plugin.documentation = "https://github.com/ellor1138/Localizator/wiki";
@@ -850,6 +850,33 @@
 			}
 
 			return loc.result;
+		}
+
+		/* ---------------------------------------------------------------------------------------------------
+		 * @hint Generate localization files from database
+		 * ---------------------------------------------------------------------------------------------------
+		*/
+		public function generateLocalizationDatabase() {
+			var loc = {};
+
+			loc.repository = includePluginFile(application.wheels.localizatorSettings.files.repository);
+			loc.deleted    = model(application.wheels.localizatorLanguageTable).deleteAll(softDelete=false);
+
+			for ( loc.j IN loc.repository) {
+				loc.translation      = {};
+				loc.translation.text = loc.j;
+				loc.translation      = editTranslation(loc.translation);
+
+				loc.addition = model(application.wheels.localizatorLanguageTable).create(loc.translation);
+			}
+
+			loc.count = model(application.wheels.localizatorLanguageTable).count();
+			
+			if ( loc.count ) {
+				return l("The translation of your localization files has been added to the database table");
+			} else {
+				return l("Unable to add the translation of your localization files to the database table");
+			}
 		}
 
 		/* ---------------------------------------------------------------------------------------------------

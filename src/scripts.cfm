@@ -14,7 +14,12 @@
 		}
 
 		// GENERATE LOCALIZATION FILES
-		if ( isDefined("params.type") && params.type == "generate" && loc.config.settings.isDB ) {
+		if ( isDefined("params.type") && params.type == "todatabase" && loc.config.settings.isDB ) {
+			loc.message.generator = generateLocalizationDatabase();
+		}
+
+		// GENERATE LOCALIZATION FILES
+		if ( isDefined("params.type") && params.type == "tofile" && loc.config.settings.isDB ) {
 			loc.message.generator = generateLocalizationFiles();
 		}
 
@@ -69,8 +74,20 @@
 		// GET TEXTS
 		if ( loc.config.settings.isDB ) {
 			loc.localizations = getLocalizationsFromDatabase(params.letter);
+			loc.fromFile      = false;
+
+			if ( !loc.localizations.texts.recordCount ) {
+				loc.localizations = getLocalizationsFromFile(params.letter);
+				loc.fromFile      = true;
+			}
+
 		} else {
 			loc.localizations = getLocalizationsFromFile(params.letter);
+			loc.fromFile      = true;
 		}
+
+		loc.countDatabase = getLocalizationsFromDatabase(params.letter).texts.recordCount;
+		loc.countFile     = getLocalizationsFromFile(params.letter).texts.recordCount;
+
 	</cfscript>
 </cfoutput>

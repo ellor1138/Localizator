@@ -22,11 +22,11 @@
 					</cfif>
 				</ul>
 				
-				<cfif isDefined("loc.localizations.texts") AND loc.localizations.texts.recordCount AND isDefined("loc.config.settings.languages.locales") AND ListLen(loc.config.settings.languages.locales)>
+				<cfif !loc.fromFile && isDefined("loc.localizations.texts") AND loc.localizations.texts.recordCount AND isDefined("loc.config.settings.languages.locales") AND ListLen(loc.config.settings.languages.locales)>
 					<hr />
-					<p>There is #pluralize(word="entry", count=loc.localizations.texts.recordCount)# in the localizaton table.</p>
+					<p>There is #pluralize(word="entry", count=loc.countDatabase)# in the localizaton table.</p>
 					<div style="text-align:center;">
-						<form action="#loc.config.url###generate" method="post">
+						<form action="#loc.config.url###tofile" method="post">
 							<input type="hidden" name="type" value="generate">
 							<input type="submit" value="Generate localization file(s)" class="btn">
 						</form>

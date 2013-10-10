@@ -12,10 +12,16 @@
 						</ul>
 					</li>
 				</ul>
-				<cfif !loc.config.settings.isDB AND isDefined("loc.localizations.texts") AND loc.localizations.texts.recordCount>
-					<hr />
-					<p>There is #pluralize(word="entry", count=loc.localizations.texts.recordCount)# in the repository file.</p>
-				</cfif>
+				<!--- <cfif loc.fromFile && isDefined("loc.localizations.texts") AND loc.localizations.texts.recordCount> --->
+				<hr />
+				<p>There is #pluralize(word="entry", count=loc.countFile)# in the repository file.</p>
+				<div style="text-align:center;">
+					<form action="#loc.config.url###todatabase" method="post">
+						<input type="hidden" name="type" value="todatabase">
+						<input type="submit" value="Add localizations to database" class="btn">
+					</form>
+				</div>
+				<!--- </cfif> --->
 			</div>
 		<cfelse>
 			<div class="alert alert-error" style="margin-bottom:0; padding:10px 8px 0;">

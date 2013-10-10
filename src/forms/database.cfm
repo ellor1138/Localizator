@@ -46,7 +46,6 @@
 				</cfif>
 			</form>
 		</div>
-		
 		<cfinclude template="languages.cfm">
 	</div>
 	

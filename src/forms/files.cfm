@@ -29,7 +29,7 @@
 						<div class="control-group">
 							<label class="control-label"><strong>#GetLocaleDisplayName(loc.language, getLocale())#</strong></label>
 							<div class="controls">
-								<input type="text" name="localizationForm[#loc.language#]" value="#isDefined('localizationForm.#loc.language#') ? localizationForm[loc.language] : ''#" />
+								<input type="text" name="loc.config.settings.languages.locales" value="#isDefined('localizationForm.#loc.language#') ? localizationForm[loc.language] : ''#" />
 							</div>
 							<cfif loc.language EQ ListLast(loc.config.settings.languages.locales)>
 								<div class="controls">
@@ -48,6 +48,7 @@
 				</cfif>
 			</form>
 		</div>
+		<cfinclude template="languages.cfm">
 	</div>
 	
 	<cfinclude template="list.cfm">

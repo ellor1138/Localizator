@@ -1,6 +1,12 @@
 ﻿<cfoutput>
 	<div class="tab-pane" id="Log">
 		<dl class="dl-horizontal">
+			<dt>Version 2.5</dt>
+			<dd>October 10, 2013
+				<ul>
+					<li>You can add translation from your locales files to your localization table</li>
+				</ul>
+			</dd>
 			<dt>Version 2.4</dt>
 			<dd>October 9, 2013
 				<ul>

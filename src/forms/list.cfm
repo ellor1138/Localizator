@@ -37,15 +37,17 @@
 							<td style="width:100%; vertical-align:middle;">#loc.localizations.texts.text#</td>
 							<td style="text-align:center;">
 								<cfset x = 0>
-								<cfloop collection="#localizatorGetLanguages()#" item="localeid">
-									<cfif Len(loc.localizations.texts["#localeid#"][currentrow])>
-										<cfset x += 1>
+								<cfif !loc.fromFile>
+									<cfloop collection="#localizatorGetLanguages()#" item="localeid">
+										<!--- <cfif Len(loc.localizations.texts["#localeid#"][currentrow])>
+											<cfset x += 1>
+										</cfif> --->
+									</cfloop>
+									<cfif x GT 1>
+										<span class="label label-success"><i class="icon-white icon-ok"></i></span>
+									<cfelse>
+										<span class="label label-important"><i class="icon-white icon-remove"></i></span>
 									</cfif>
-								</cfloop>
-								<cfif x GT 1>
-									<span class="label label-success"><i class="icon-white icon-ok"></i></span>
-								<cfelse>
-									<span class="label label-important"><i class="icon-white icon-remove"></i></span>
 								</cfif>
 							</td>
 							<td style="text-align:center;">

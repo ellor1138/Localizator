@@ -89,7 +89,7 @@
 				</cfif>
 				
 				<div class="row">
-					<cfif loc.config.settings.isDB>
+					<cfif !loc.fromFile && loc.config.settings.isDB>
 						<cfinclude template="forms/database.cfm">
 					<cfelse>
 						<cfinclude template="forms/files.cfm">
