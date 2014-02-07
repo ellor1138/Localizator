@@ -859,12 +859,12 @@
 		public function generateLocalizationDatabase() {
 			var loc = {};
 
-			loc.repository = includePluginFile(application.wheels.localizatorSettings.files.repository);
+			loc.repository = ListSort(StructKeyList(includePluginFile(application.wheels.localizatorSettings.files.repository), "~"), "textnocase", "ASC", "~");
 			loc.deleted    = model(application.wheels.localizatorLanguageTable).deleteAll(softDelete=false);
 
-			for ( loc.j IN loc.repository) {
+			for (loc.i = 1; loc.i <= ListLen(loc.repository, "~"); loc.i++) {
 				loc.translation      = {};
-				loc.translation.text = loc.j;
+				loc.translation.text = ListGetAt(loc.repository, loc.i, "~");
 				loc.translation      = editTranslation(loc.translation);
 
 				loc.addition = model(application.wheels.localizatorLanguageTable).create(loc.translation);
@@ -874,6 +874,7 @@
 			
 			if ( loc.count ) {
 				return l("The translation of your localization files has been added to the database table");
+			
 			} else {
 				return l("Unable to add the translation of your localization files to the database table");
 			}
@@ -886,7 +887,7 @@
 		public string function generateLocalizationFiles() {
 			var loc = {};
 			
-			loc.query   = model(application.wheels.localizatorLanguageTable).findAll();
+			loc.query   = model(application.wheels.localizatorLanguageTable).findAll(order="text ASC");
 			loc.message = l("No localization files were generated");
 
 			if ( loc.query.recordCount ) {
@@ -899,6 +900,7 @@
 				for (loc.x = 1; loc.x <= loc.query.recordCount; loc.x++) {
 					loc.text  = loc.query.text[loc.x];
 					loc.texts = loc.texts & '<cfset loc["' & loc.text & '"] = "">';
+					
 					if ( loc.x != loc.query.recordCount ) {
 						loc.texts = loc.texts & Chr(13) & Chr(10);
 					}
@@ -918,6 +920,7 @@
 					for (loc.x = 1; loc.x <= loc.query.recordCount; loc.x++) {
 						loc.text  = loc.query.text[loc.x];
 						loc.texts = loc.texts & '<cfset loc["' & loc.text & '"] = "' & loc.query[loc.language][loc.x] & '">';
+						
 						if ( loc.x != loc.query.recordCount ) {
 							loc.texts = loc.texts & Chr(13) & Chr(10);
 						}
