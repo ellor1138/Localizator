@@ -7,7 +7,8 @@
 		loc.localizations = {};
 
 		loc.config.settings = getLocalizatorPluginSettings();
-		loc.config.url      = "#CGI.script_name#?controller=wheels&action=wheels&view=plugins&name=#loc.config.settings.plugin.name#";
+
+		loc.config.url = "#CGI.script_name#?controller=wheels&action=wheels&view=plugins&name=#loc.config.settings.plugin.name#";
 
 		if ( loc.config.settings.isDB ) {
 			localizationForm  = model(get('localizatorLanguageTable')).new();
@@ -83,11 +84,29 @@
 
 		} else {
 			loc.localizations = getLocalizationsFromFile(params.letter);
-			loc.fromFile      = true;
+
+			if ( isStruct(loc.localizations) ) {
+				loc.fromFile = true;
+			
+			} else {
+				loc.fromFile = false;
+			}
 		}
 
-		loc.countDatabase = getLocalizationsFromDatabase(params.letter).texts.recordCount;
-		loc.countFile     = getLocalizationsFromFile(params.letter).texts.recordCount;
+		if ( loc.config.settings.isDB ) {
+			loc.countDatabase = getLocalizationsFromDatabase(params.letter).texts.recordCount;
+		
+		} else {
+			loc.countDatabase = 0;
+		}
+
+		loc.countFile = getLocalizationsFromFile(params.letter);
+
+		if ( isStruct(loc.countFile) ) {
+			loc.countFile = loc.countFile.texts.recordCount;
+		} else {
+			loc.countFile = 0;
+		}
 
 	</cfscript>
 </cfoutput>
