@@ -583,7 +583,9 @@
 				}
 
 			} else {
-				include template;
+				if ( FileExists(ExpandPath("plugins/localizator/" & template)) ){
+					include template;
+				}
 
 				return loc;
 			}
@@ -1001,7 +1003,7 @@
 		*/
 		public string function generateLocalizationFiles() {
 			var loc = {};
-			
+
 			loc.query   = model(application.localizator.localizatorLanguageTable).findAll();
 			loc.message = l("No localization files were generated");
 

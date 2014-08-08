@@ -104,6 +104,7 @@
 
 		if ( isStruct(loc.countFile) ) {
 			loc.countFile = loc.countFile.texts.recordCount;
+		
 		} else {
 			loc.countFile = 0;
 		}

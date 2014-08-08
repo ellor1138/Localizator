@@ -4,19 +4,21 @@
 			<div class="alert alert-danger">
 				<span class="label label-danger">Important</span> &nbsp;&nbsp;Here's the new way to configure #capitalize(loc.config.settings.plugin.name)# #loc.config.settings.plugin.version# with Wheels 1.3
 			</div>
-
 			<div class="alert alert-info">
-				<p>In you config/environment, create a new file called "localizator.cfm". And add this structure:</p>
+				<p style="font-weight:bold;">In your config/environment folders, create a new file called "localizator.cfm", and add this structure:</p>
+				<hr>
 				<p>
 					<div>&lt;cfset loc = {</div>
 						<div style="margin-left:40px;">dataSourceName="YourDataSourceName",</div>
-						<div style="margin-left:40px;">localizatorLanguageDefault="localeid",</div>
+						<div style="margin-left:40px;">localizatorLanguageDefault="Locale ID",</div>
 						<div style="margin-left:40px;">localizatorLanguageSession="user.localeid",</div>
 						<div style="margin-left:40px;">localizatorGetLocalizationFromFile=false,</div>
 						<div style="margin-left:40px;">localizatorLanguageHarvest=false,</div>
 						<div style="margin-left:40px;">localizatorLanguageTable="localizationTable"</div>
 					<div>}&gt;</div>
 				</p>
+				<hr>
+				<p><strong>Note that you'll need a "localizator.cfm" file in each environment you want to use with the plugin.</strong></p>
 			</div>
 
 			<dl>

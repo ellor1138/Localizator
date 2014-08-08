@@ -30,7 +30,7 @@
 						
 						<div style="text-align:center; margin:20px 0 0;">
 							<form action="#loc.config.url###tofile" method="post">
-								<input type="hidden" name="type" value="generate">
+								<input type="hidden" name="type" value="tofile">
 								<input type="submit" value="Generate localization file(s)" class="btn btn-default">
 							</form>
 						</div>
@@ -38,17 +38,19 @@
 				</div>
 				
 			<cfelseif !loc.config.settings.isAvailableDatabase>
-				<div class="alert alert-error">
+				<div class="alert alert-danger" style="margin-bottom:0;">
 					<h4>Datasource <strong style="color:##F30;">not found</strong></h4>
+					<hr>
 					<ol>
-						<li>Create a new datasource and add it to config/settings.cfm</li>
+						<li>Create a new datasource and add it to config/environment/localizator.cfm</li>
 						<li>Reload your application.</li>
 					</ol>
 				</div>
 
 			<cfelseif !loc.config.settings.isAvailableDatabaseTable>
-				<div class="alert alert-error">
+				<div class="alert alert-danger" style="margin-bottom:0;">
 					<h4>Table <strong style="color:##F30;">not found</strong></h4>
+					<hr>
 					<ol>
 						<li>Create a new table called "localizations" with these columns:
 							<ul>
@@ -61,8 +63,8 @@
 						<li>Reload your application.</li>
 					</ol>
 
-					<div class="well">
-						<small>You can give any name to your table. Just set <abbr title='set(localizatorLanguageTable="YourTableName")'>localizatorLanguageTable</abbr> with your table name in your config/settings.cfm files.</small>
+					<div class="well" style="margin-bottom:0; background:##fff;">
+						<small>You can give any name to your table. Just set <abbr title='localizatorLanguageTable="YourTableName"'>localizatorLanguageTable</abbr> with your table name..</small>
 					</div>
 				</div>
 			</cfif>
