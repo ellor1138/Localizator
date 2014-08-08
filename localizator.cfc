@@ -45,87 +45,62 @@
 			 * APPLY DEFAULT SETTINGS IF NOT SUPPLIED IN --> (environment/config/localizator.cfm)
 		 	 * ---------------------------------------------------------------------------------------------------
 			*/
-
-			/* ---------------------------------------------------------------------------------------------------
-			 * IMPORTANT MESSAGE
-			 * ---------------------------------------------------------------------------------------------------
-			 * August 6, 2014 - Wheels 1.3 has just been released and it look awesome!
-			 * August 8, 2014 - Localizator 3.0 is launched to make it compatible with Wheels 1.3
-			 * Here's the new way to configure Localizator 3.x and up
-			 * In your config/environment folder create a new file called "localizator.cfm"
-
-			<cfset loc = {
-				dataSourceName="YourDataSourceName",
-				localizatorLanguageDefault="localeid",
-				localizatorLanguageSession="user.localeid",
-				localizatorGetLocalizationFromFile=false,
-				localizatorLanguageHarvest=false,
-				localizatorLanguageTable="localizationTable"
-			}>
-
-			* ---------------------------------------------------------------------------------------------------
-			*/
 			// Set application wheels path
 			if ( StructKeyExists(application, "$wheels") ) {
+				temp.wheels      = "$wheels";
 				temp.application = application.$wheels;
 
 			} else if (StructKeyExists(application, "wheels") ) {
+				temp.wheels      = "wheels";
 				temp.application = application.wheels;
 			}
 
-			// Set path to config file)
-			temp.configFile  = temp.application["rootPath"] & "/config/" & temp.application["environment"] & "/localizator.cfm";
-			temp.configCheck = FileExists(ExpandPath(temp.configFile));
-
-			// Check if exists and load it
-			if ( temp.configCheck ) {
-				include temp.configFile;
-			}
-
 			// - SET DATASOURCE NAME (dataSourceName)
-			// - set(localizatorLanguageDefault="localeid") --> (config/settings.cfm)
-			if ( !StructKeyExists(loc, "dataSourceName") || !Len(loc.dataSourceName) ) {
-				loc.dataSourceName = temp.application["dataSourceName"];
-			}
+			loc.dataSourceName = temp.application["dataSourceName"];
 
 			// - SET DEFAULT LANGUAGE (localeid)
 			// - set(localizatorLanguageDefault="localeid") --> (config/settings.cfm)
-			if ( !StructKeyExists(loc, "localizatorLanguageDefault") || !Len(loc.localizatorLanguageDefault) ) {
+			if ( StructKeyExists(application[temp.wheels], "localizatorLanguageDefault") ) {
+				loc.localizatorLanguageDefault = application[temp.wheels].localizatorLanguageDefault;
+			
+			} else {
 				loc.localizatorLanguageDefault = CreateObject("java", "java.util.Locale").getDefault().toString();				
 			}
 			
 			// - SET DEFAULT HARVEST FLAG (default to false)
 			// - set(localizatorLanguageHarvest=true/false) --> (config/settings.cfm)
-			if ( !StructKeyExists(loc, "localizatorLanguageHarvest") || !Len(loc.localizatorLanguageHarvest) ) {
+			if ( StructKeyExists(application[temp.wheels], "localizatorLanguageHarvest") ) {
+				loc.localizatorLanguageHarvest = application[temp.wheels].localizatorLanguageHarvest;
+			
+			} else {
 				loc.localizatorLanguageHarvest = false;				
 			}
 			
 			// - SET DEFAULT LOCALIZATION TABLE (default to "localizations")
 			// - set(localizatorLanguageTable="NameOfYourLocalizationTable") --> (config/settings.cfm)
-			if ( !StructKeyExists(loc, "localizatorLanguageTable") || !Len(loc.localizatorLanguageTable) ) {
+			if ( StructKeyExists(application[temp.wheels], "localizatorLanguageTable") ) {
+				loc.localizatorLanguageTable = application[temp.wheels].localizatorLanguageTable;
+			
+			} else {
 				loc.localizatorLanguageTable = "localizations";				
 			}
 
 			// - FORCE THE PLUGIN TO GET TRANSLATION FROM LOCALIZATION FILES
-			// - set(localizatorGetLocalizationFromFile=true/false) --> (config/settings.cfm)
-			if ( !StructKeyExists(loc, "localizatorGetLocalizationFromFile") || !Len(loc.localizatorGetLocalizationFromFile) ) {
+			if ( StructKeyExists(application[temp.wheels], "localizatorGetLocalizationFromFile") ) {
+				loc.localizatorGetLocalizationFromFile = application[temp.wheels].localizatorGetLocalizationFromFile;
+			
+			} else {
 				loc.localizatorGetLocalizationFromFile = false;				
 			}
 
-			// Add variables to wheels application struct
-			temp.application["localizatorLanguageDefault"]         = loc.localizatorLanguageDefault;
-			temp.application["localizatorLanguageHarvest"]         = loc.localizatorLanguageHarvest;
-			temp.application["localizatorLanguageTable"]           = loc.localizatorLanguageTable;
-			temp.application["localizatorGetLocalizationFromFile"] = loc.localizatorGetLocalizationFromFile;
-
-			if ( StructKeyExists(loc, "localizatorLanguageSession") && Len(loc.localizatorLanguageSession) ) {
-				temp.application["localizatorLanguageSession"] = loc.localizatorLanguageSession;
+			if ( StructKeyExists(application[temp.wheels], "localizatorLanguageSession") ) {
+				loc.localizatorLanguageSession = application[temp.wheels].localizatorLanguageSession;
 			}
 			
 			loc.plugin = {};
 			loc.plugin.author        = "Simon Allard";
 			loc.plugin.name          = "localizator";
-			loc.plugin.version       = "3.0";
+			loc.plugin.version       = "2.6";
 			loc.plugin.compatibility = "1.3";
 			loc.plugin.project       = "https://github.com/ellor1138/Localizator";
 			loc.plugin.documentation = "https://github.com/ellor1138/Localizator/wiki";
@@ -175,6 +150,7 @@
 			return loc;
 		}
 
+		// Get plugin settings
 		public function getLocalizatorPluginSettings() {
 			var loc = {};
 
@@ -1028,8 +1004,10 @@
 				for (loc.i = 1; loc.i <= ListLen(application.localizator.localizatorSettings.files.locales); loc.i++) {
 					loc.texts = "";
 					loc.item  = ListGetAt(application.localizator.localizatorSettings.files.locales, loc.i);
-
-					FileDelete(loc.item);
+					
+					if ( FileExists(loc.item) ) {
+						FileDelete(loc.item);
+					}
 
 					loc.file     = createFile(loc.item);
 					loc.language = ReplaceNoCase(Mid(loc.item, loc.item.lastIndexOf("\")+2, loc.item.lastIndexOf(".")), ".cfm", "");

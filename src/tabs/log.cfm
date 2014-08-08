@@ -2,12 +2,12 @@
 	<div class="tab-pane" id="Log">
 		<div class="pad">
 			<dl class="dl-horizontal">
-				<dt>Version 3.0</dt>
+				<dt>Version 2.6</dt>
 				<dd>August 8, 2014
 					<ul>
 						<li>Compatible with Wheels 1.3</li>
-						<li>New configuration setup</li>
 						<li>Bug fixes to the editor</li>
+						<li>Remove Lobot plugin support</li>
 					</ul>
 				</dd>
 				<dt>Version 2.5</dt>
