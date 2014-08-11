@@ -10,7 +10,7 @@
 
 					<h4 style="margin-top:20px;">Localization table found!</h4>
 					<ul>
-						<li>#get("localizatorLanguageTable")#</li>
+						<li>#loc.config.settings.localizationtable#</li>
 						
 						<cfif isDefined("loc.config.settings.languages.database") AND ListLen(loc.config.settings.languages.database)>
 							<li>#pluralize(word="Language", count=ListLen(loc.config.settings.languages.database), returnCount=false)# configured:

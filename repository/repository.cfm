@@ -1,1 +1,1 @@
-﻿<cfset loc["Welcome"] = "">
+﻿

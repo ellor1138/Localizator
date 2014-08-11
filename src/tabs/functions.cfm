@@ -217,6 +217,9 @@
 						</dd>
 					</dl>
 				</li>
+				<li><b>localizatorGetPluginSettings()</b> 
+					<div style="margin:10px 0;">This function will return a struct with Localizator plugin settings.</div>
+				</li>
 			</ul>
 		</div>
 	</div>

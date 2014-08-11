@@ -6,12 +6,12 @@
 		loc.message       = {};
 		loc.localizations = {};
 
-		loc.config.settings = getLocalizatorPluginSettings();
+		loc.config.settings = localizatorGetPluginSettings();
 
 		loc.config.url = "#CGI.script_name#?controller=wheels&action=wheels&view=plugins&name=#loc.config.settings.plugin.name#";
 
 		if ( loc.config.settings.isDB ) {
-			localizationForm  = model(get('localizatorLanguageTable')).new();
+			localizationForm  = model(loc.config.settings.localizationtable).new();
 		}
 
 		// GENERATE LOCALIZATION FILES
@@ -48,7 +48,7 @@
 		if ( isDefined("params.type") && params.type == "addLanguage" ) {
 			createdLanguage = localizatorAddLocaleid(params.locales.localeid);
 
-			loc.config.settings = getLocalizatorPluginSettings();
+			loc.config.settings = localizatorGetPluginSettings();
 			
 			if ( createdLanguage ) {
 				flashInsert(message=l("Language created successfully"), messageType="success");
@@ -62,7 +62,7 @@
 		if ( isDefined("params.type") && params.type == "deleteLanguage" ) {
 			deletedLanguage = localizatorDeleteLocaleid(params.locales.localeid);
 
-			loc.config.settings = getLocalizatorPluginSettings();
+			loc.config.settings = localizatorGetPluginSettings();
 
 			if ( deletedLanguage ) {
 				flashInsert(message=l("Language deleted successfully"), messageType="success");

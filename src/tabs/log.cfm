@@ -5,9 +5,10 @@
 				<dt>Version 2.6</dt>
 				<dd>August 8, 2014
 					<ul>
-						<li>Compatible with Wheels 1.3</li>
-						<li>Bug fixes to the editor</li>
+						<li>Now compatible with Wheels 1.3</li>
+						<li>Bug fixes</li>
 						<li>Remove Lobot plugin support</li>
+						<li>Add localizatorGetPluginSettings function</li>
 					</ul>
 				</dd>
 				<dt>Version 2.5</dt>
