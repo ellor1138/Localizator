@@ -3,7 +3,7 @@
 		<div class="pad">
 			<dl class="dl-horizontal">
 				<dt>Version 2.6</dt>
-				<dd>August 8, 2014
+				<dd>August 11, 2014
 					<ul>
 						<li>Now compatible with Wheels 1.3</li>
 						<li>Bug fixes</li>
