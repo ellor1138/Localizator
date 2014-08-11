@@ -9,6 +9,7 @@
 						<li>Bug fixes</li>
 						<li>Remove Lobot plugin support</li>
 						<li>Add localizatorGetPluginSettings function</li>
+						<li>Add localizatorValidateLanguagesList function</li>
 					</ul>
 				</dd>
 				<dt>Version 2.5</dt>

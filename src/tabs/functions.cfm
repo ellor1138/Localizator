@@ -16,6 +16,7 @@
 						</dd>
 					</dl>
 				</li>
+
 				<li><b>localizatorCheckForErrors(required struct object, string localeid)</b>
 					<div style="margin:10px 0;">Since error messages, set in the init block in your model files, are cached when your application is reloaded. This function will return their translation based on argument, session or default localeid. This function is to be used with the error messages view helper.</div>
 					<dl class="well">
@@ -31,6 +32,7 @@
 						</dd>
 					</dl>
 				</li>
+
 				<li><b>localizatorGetAvailableLocaleid(string localeid)</b>
 					<div style="margin:10px 0;">This function will return a struct that you can use to populate a drop down menu with available  server's localeid. The localeid argument let you return the localeid display name in the language you need.</div>
 					<dl class="well">
@@ -195,6 +197,7 @@
 						</dd>
 					</dl>
 				</li>
+
 				<li><b>localizatorAddLocaleid(required string localeid)</b>
 					<div style="margin:10px 0;">This function will add localeid column to the database table & create a localeid file in locales plugin folder. The new localeid file will be filled with the repository file text.</div>
 					<dl class="well">
@@ -206,6 +209,7 @@
 						</dd>
 					</dl>
 				</li>
+
 				<li><b>localizatorDeleteLocaleid(required string localeid)</b>
 					<div style="margin:10px 0;">This function will delete the localeid column from the database table & delete the localeid file from the locales plugin folder.</div>
 					<dl class="well">
@@ -217,6 +221,18 @@
 						</dd>
 					</dl>
 				</li>
+
+				<li><b>localizatorValidateLanguagesList(required string languages, string locales)</b>
+					<div style="margin:10px 0;">This function verify/validate a list of localeid (languages) against another list of localeid (locales) and will return only the valide one. If you don't pass the locales argument, the plugin will verify/validate the languages list against the server locales.</div>
+					<dl class="well">
+						<dt>How to use this function in your controller:</dt>
+						<dd>
+							localizatorValidateLanguagesList("en,en_CA,fr_CA", "en,en_CA,en_CA,en_SA");<br>
+							// Result list: "en,en_CA,fr_CA"<br />
+						</dd>
+					</dl>
+				</li>
+
 				<li><b>localizatorGetPluginSettings()</b> 
 					<div style="margin:10px 0;">This function will return a struct with Localizator plugin settings.</div>
 				</li>

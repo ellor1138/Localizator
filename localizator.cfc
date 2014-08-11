@@ -25,7 +25,7 @@
 		public function init() {
 			var loc = {};
 
-			this.version = "1.3";
+			this.version = "1.1.8,1.3";
 
 			application.localizator = {};
 			application.localizator = $initLocalizatorPluginSettings();
@@ -209,6 +209,18 @@
 					}
 				}
 			}	
+		}
+
+		/* -------------------------------------------------------------------
+		 * @hint  Validate language list against server Locale ID (Front end)
+		 * -------------------------------------------------------------------
+		*/
+		public function localizatorValidateLanguagesList(required string languages="", required string locales=application.localizator.localizatorServerLocales) {
+			var loc = {};
+
+			loc.check = $validateLanguagesList(argumentCollection=arguments);
+
+			return loc.check;
 		}
 
 		/* ---------------------------------------------------------------------------------------------------
@@ -1180,7 +1192,7 @@
 		 * @hint Validate language list against server Locale ID
 		 * ------------------------------------------------------
 		*/
-		public string function $validateLanguagesList(required string languages="", required string localizatorServerLocales=application.localizator.localizatorServerLocales) {
+		public string function $validateLanguagesList(required string languages="", required string locales=application.localizator.localizatorServerLocales) {
 			var loc = arguments;
 
 			loc.list = "";
@@ -1188,7 +1200,7 @@
 			for ( loc.i = 1; loc.i <= ListLen(loc.languages); loc.i++ ) {
 				loc.locale = ListGetAt(loc.languages, loc.i);
 				
-				if ( $isValidLocale(loc.locale, arguments.localizatorServerLocales) ) {
+				if ( $isValidLocale(loc.locale, arguments.locales) ) {
 					loc.list = ListAppend(loc.list, loc.locale);
 				}
 			}
