@@ -22,6 +22,7 @@ Problems or issues with this plugin can be found at https://github.com/ellor1138
 
 ## Requirements
 ##### I have tested this plugin with the following CFWheels frameworks:
+* ColdFusion on Wheels 1.3.1
 * ColdFusion on Wheels 1.3
 * ColdFusion on Wheels 1.1.8
 

@@ -2,6 +2,12 @@
 	<div class="tab-pane" id="Log">
 		<div class="pad">
 			<dl class="dl-horizontal">
+				<dt>Version 2.6.1</dt>
+				<dd>August 26, 2014
+					<ul>
+						<li>Redirection option added to addTranslation(), updateTranslation() and deleteTranslation() functions.</li>
+					</ul>
+				</dd>
 				<dt>Version 2.6</dt>
 				<dd>August 11, 2014
 					<ul>

@@ -25,7 +25,7 @@
 		public function init() {
 			var loc = {};
 
-			this.version = "1.1.8,1.3";
+			this.version = "1.1.8,1.3,1.3.1";
 
 			application.localizator = {};
 			application.localizator = $initLocalizatorPluginSettings();
@@ -465,6 +465,7 @@
 		public struct function addTranslation(required struct params) {
 			var loc = {};
 
+			loc.args = {};
 			loc.form = arguments.params.localizationForm;
 
 			if ( !isDefined("loc.form.text") || (isDefined("loc.form.text") && !Len(loc.form.text)) ) {
@@ -541,14 +542,21 @@
 
 			if ( Len(loc.message) ) {
 				if ( loc.message CONTAINS "already" ) {
-					flashInsert(message=loc.message, messageType="error");
+					StructAppend(loc.args, {message=loc.message, messageType="error"});
 				
 				} else {
-					flashInsert(message=loc.message, messageType="success");
+					StructAppend(loc.args, {message=loc.message, messageType="success"});
 				}
 			}
 
-			redirectTo(back=true);
+			if ( StructKeyExists(arguments.params, "redirect") ) {
+				StructAppend(loc.args, arguments.params.redirect);
+			
+			} else {
+				StructAppend(loc.args, {back=true});
+			}
+
+			redirectTo(argumentCollection=loc.args);
 		}
 
 		/* -----------------------
@@ -594,6 +602,7 @@
 		public struct function updateTranslation(required struct params) {
 			var loc = {};
 
+			loc.args      = {};
 			loc.form      = arguments.params.localizationForm;
 			loc.text      = loc.form.text;
 			loc.isDynamic = $isDynamic(loc.text);
@@ -667,10 +676,17 @@
 			}
 
 			if ( Len(loc.message) ) {
-				flashInsert(message=loc.message, messageType="success");
+				StructAppend(loc.args, {message=loc.message, messageType="success"});
 			}
 
-			redirectTo(back=true);
+			if ( StructKeyExists(arguments.params, "redirect") ) {
+				StructAppend(loc.args, arguments.params.redirect);
+			
+			} else {
+				StructAppend(loc.args, {back=true});
+			}
+
+			redirectTo(argumentCollection=loc.args);
 		}
 
 		/* ----------------------------------------------------------
@@ -680,7 +696,8 @@
 		public struct function deleteTranslation(required struct params) {
 			var loc = arguments;
 
-			loc.database = {}; 
+			loc.args     = {};
+			loc.database = {};
 			loc.file     = {};
 			loc.message  = "";
 
@@ -767,10 +784,17 @@
 			}
 
 			if ( Len(loc.message) ) {
-				flashInsert(message=loc.message, messageType="success");
+				StructAppend(loc.args, {message=loc.message, messageType="success"});
 			}
 
-			redirectTo(back=true);
+			if ( StructKeyExists(arguments.params, "redirect") ) {
+				StructAppend(loc.args, arguments.params.redirect);
+			
+			} else {
+				StructAppend(loc.args, {back=true});
+			}
+
+			redirectTo(argumentCollection=loc.args);
 		}
 
 		/* ---------------------------------------------------------------------------------------------------
@@ -890,8 +914,8 @@
 			loc.plugin = {};
 			loc.plugin.author        = "Simon Allard";
 			loc.plugin.name          = "localizator";
-			loc.plugin.version       = "2.6";
-			loc.plugin.compatibility = "1.1.8, 1.3";
+			loc.plugin.version       = "2.6.1";
+			loc.plugin.compatibility = "1.1.8, 1.3, 1.3.1";
 			loc.plugin.project       = "https://github.com/ellor1138/Localizator";
 			loc.plugin.documentation = "https://github.com/ellor1138/Localizator/wiki";
 			loc.plugin.issues        = "https://github.com/ellor1138/Localizator/issues";

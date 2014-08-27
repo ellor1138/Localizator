@@ -2,6 +2,61 @@
 	<div class="tab-pane" id="Functions">
 		<div class="pad">
 			<ul class="list-unstyled">
+				<li>
+					<div class="alert alert-success alert-sm">
+						<p><span class="label label-success">New in 2.6.1</span></p>
+						<p>You can add a "redirect" struct with the addTranslation(), updateTranslation() and deleteTranslation() functions. This will overwrite the default redirectTo(back=true) function. See examples below.</p>
+					</div>
+				</li>
+				<li><b>addTranslation(required struct params)</b>
+					<div style="margin:10px 0;">
+						<p>This function will add a translation.</p>
+
+					</div>
+					<dl class="well">
+						<dt>How to use it in your controller:</dt>
+						<dd>
+							public void function add() {<br>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.redirect = {route="route", controller="controller", action="action"};<br><br>
+
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localizationForm = addTranslation(params);<br>		
+							}
+						</dd>
+					</dl>
+				</li>
+
+				<li><b>updateTranslation(required struct params)</b>
+					<div style="margin:10px 0;">
+						<p>This function will update a translation.</p>
+					</div>
+					<dl class="well">
+						<dt>How to use it in your controller:</dt>
+						<dd>
+							public void function update() {<br>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.redirect = {route="route", controller="controller", action="action"};<br><br>
+
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localizationForm = updateTranslation(params);<br>		
+							}
+						</dd>
+					</dl>
+				</li>
+
+				<li><b>deleteTranslation(required struct params)</b>
+					<div style="margin:10px 0;">
+						<p>This function will delete a translation.</p>
+					</div>
+					<dl class="well">
+						<dt>How to use it in your controller:</dt>
+						<dd>
+							public void function delete() {<br>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.redirect = {route="route", controller="controller", action="action"};<br><br>
+
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localizationForm = deleteTranslation(params);<br>		
+							}
+						</dd>
+					</dl>
+				</li>
+
 				<li><b>localizatorGetLanguages()</b>
 					<div style="margin:10px 0;">This function will return a struct that you can use to populate a drop down menu with your language choices.</div>
 					<dl class="well">
