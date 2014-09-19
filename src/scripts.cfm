@@ -14,7 +14,7 @@
 			localizationForm  = model(loc.config.settings.localizationtable).new();
 		}
 
-		// GENERATE LOCALIZATION FILES
+		// GENERATE LOCALIZATION DATABASE (from file)
 		if ( isDefined("params.type") && params.type == "todatabase" && loc.config.settings.isDB ) {
 			loc.message.generator = generateLocalizationDatabase();
 		}
@@ -108,6 +108,5 @@
 		} else {
 			loc.countFile = 0;
 		}
-
 	</cfscript>
 </cfoutput>

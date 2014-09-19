@@ -371,14 +371,14 @@
 		}
 
 		/* ------------------------------------------------
-		 * @hint Generate localization files from database
+		 * @hint Generate localization database from files
 		 * ------------------------------------------------
 		*/
 		public function generateLocalizationDatabase() {
 			var loc = {};
 
 			loc.repository = $includePluginFile(application.localizator.localizatorSettings.files.repository);
-			loc.deleted    = model(application.localizator.localizatorLanguageTable).deleteAll(softDelete=false);
+			// loc.deleted    = model(application.localizator.localizatorLanguageTable).deleteAll(softDelete=false);
 
 			for ( loc.j IN loc.repository) {
 				loc.translation      = {};
@@ -417,7 +417,7 @@
 				loc.file = $createFile(application.localizator.localizatorSettings.files.repository);
 
 				for (loc.x = 1; loc.x <= loc.query.recordCount; loc.x++) {
-					loc.text  = loc.query.text[loc.x];
+					loc.text  = $toHTMLEntity(text=loc.query.text[loc.x]);
 					loc.texts = loc.texts & '<cfset loc["' & loc.text & '"] = "">';
 					
 					if ( loc.x != loc.query.recordCount ) {
@@ -441,8 +441,8 @@
 					loc.language = ReplaceNoCase(Mid(loc.item, loc.item.lastIndexOf("\")+2, loc.item.lastIndexOf(".")), ".cfm", "");
 
 					for (loc.x = 1; loc.x <= loc.query.recordCount; loc.x++) {
-						loc.text  = loc.query.text[loc.x];
-						loc.texts = loc.texts & '<cfset loc["' & loc.text & '"] = "' & loc.query[loc.language][loc.x] & '">';
+						loc.text  = $toHTMLEntity(text=loc.query.text[loc.x]);
+						loc.texts = loc.texts & '<cfset loc["' & loc.text & '"] = "' & $toHTMLEntity(text=loc.query[loc.language][loc.x]) & '">';
 						
 						if ( loc.x != loc.query.recordCount ) {
 							loc.texts = loc.texts & Chr(13) & Chr(10);
@@ -462,11 +462,12 @@
 		 * @hint Add text & translation to database and/or locales files
 		 * --------------------------------------------------------------
 		*/
+
 		public struct function addTranslation(required struct params) {
 			var loc = {};
 
 			loc.args = {};
-			loc.form = arguments.params.localizationForm;
+			loc.form = $toHTMLEntity(form=arguments.params.localizationForm);
 
 			if ( !isDefined("loc.form.text") || (isDefined("loc.form.text") && !Len(loc.form.text)) ) {
 				redirectTo(back=true, message=l("Text is mandatory"), messageType="error", addList=true);
@@ -556,7 +557,13 @@
 				StructAppend(loc.args, {back=true});
 			}
 
-			redirectTo(argumentCollection=loc.args);
+			// Redirect if not silent
+			if ( StructKeyExists(arguments.params, "silent") && arguments.params.silent ) {
+				return loc.args;
+				
+			} else {
+				redirectTo(argumentCollection=loc.args);
+			}
 		}
 
 		/* -----------------------
@@ -572,21 +579,29 @@
 			
 			} else if ( isDefined("loc.params.text") ) {
 				loc.struct = {};
-				loc.text   = loc.params.text;
 				
 				for (loc.i = 1; loc.i <= ListLen(application.localizator.localizatorSettings.files.locales); loc.i++) {
+					loc.text          = loc.params.text;
 					loc.file.filePath = ListGetAt(application.localizator.localizatorSettings.files.locales, loc.i);
 					loc.language      = ReplaceNoCase(Mid(loc.file.filePath, loc.file.filePath.lastIndexOf("\")+2, loc.file.filePath.lastIndexOf(".")), ".cfm", "");
 					loc.file.struct   = $includePluginFile(loc.file.filePath);
 					loc.file.check    = $checkTextInFile(loc.file.struct, loc.text);
 
 					if ( loc.file.check ) {
-						loc.struct[loc.language] = StructFind(loc.file.struct, loc.text);
+						loc.struct[loc.language] = $toHTMLEntity(text=StructFind(loc.file.struct, loc.text));
+					
+					} else {
+						loc.text2      = $toHTMLEntity(text=loc.params.text);
+						loc.file.check = $checkTextInFile(loc.file.struct, loc.text2);
+
+						if ( loc.file.check ) {
+							loc.struct[loc.language] = $text=StructFind(loc.file.struct, loc.text2);
+						}
 					}
 				}
 				
 				loc.struct.update = true;
-				loc.struct.text   = loc.text;
+				loc.struct.text   = $toHTMLEntity(text=loc.text);
 			
 			} else {
 				loc.struct = {};
@@ -603,7 +618,7 @@
 			var loc = {};
 
 			loc.args      = {};
-			loc.form      = arguments.params.localizationForm;
+			loc.form      = $toHTMLEntity(form=arguments.params.localizationForm);
 			loc.text      = loc.form.text;
 			loc.isDynamic = $isDynamic(loc.text);
 			loc.database  = {}; 
@@ -686,7 +701,13 @@
 				StructAppend(loc.args, {back=true});
 			}
 
-			redirectTo(argumentCollection=loc.args);
+			// Redirect if not silent
+			if ( StructKeyExists(arguments.params, "silent") && arguments.params.silent ) {
+				return loc.args;
+				
+			} else {
+				redirectTo(argumentCollection=loc.args);
+			}
 		}
 
 		/* ----------------------------------------------------------
@@ -715,7 +736,7 @@
 			}
 			
 			if ( isDefined("loc.params.text") && Len(loc.params.text) ) {
-				loc.text = loc.params.text;
+				loc.text = $toHTMLEntity(text=loc.params.text);
 			}
 
 			if ( ListLen(application.localizator.localizatorSettings.files.repository) ) {
@@ -794,7 +815,13 @@
 				StructAppend(loc.args, {back=true});
 			}
 
-			redirectTo(argumentCollection=loc.args);
+			// Redirect if not silent
+			if ( StructKeyExists(arguments.params, "silent") && arguments.params.silent ) {
+				return loc.args;
+				
+			} else {
+				redirectTo(argumentCollection=loc.args);
+			}
 		}
 
 		/* ---------------------------------------------------------------------------------------------------
@@ -866,6 +893,25 @@
 				loc.localizatorLanguageSession = application[temp.wheels].localizatorLanguageSession;
 			}
 
+			// - CONVERT SYMBOLS TO THEIR HTML ENTITIES (default to false)
+			// - set(localizatorConvertHTMLEntities=true/false) --> (config/settings.cfm)
+			if ( StructKeyExists(application[temp.wheels], "localizatorConvertHTMLEntities") ) {
+				loc.localizatorConvertHTMLEntities = application[temp.wheels].localizatorConvertHTMLEntities;
+			
+			} else {
+				loc.localizatorConvertHTMLEntities = false;
+			}
+
+			// - ARRAY OF HTML ENTITIES
+			// - set(localizatorConvertHTMLEntities=true/false) --> (config/settings.cfm)
+			if ( StructKeyExists(application[temp.wheels], "localizatorHTMLEntities") ) {
+				loc.localizatorHTMLEntities = application[temp.wheels].localizatorHTMLEntities;
+			
+			} else {
+				loc.localizatorHTMLEntities    = [];
+				loc.localizatorHTMLEntities[1] = {symbol='"', entity="&quot;"};
+			}
+
 			// CREATE LIST OF AVAILABLE SERVER LOCALE ID
 			temp.serverLocales = CreateObject('java','java.util.Locale').getAvailableLocales();
 
@@ -914,7 +960,7 @@
 			loc.plugin = {};
 			loc.plugin.author        = "Simon Allard";
 			loc.plugin.name          = "localizator";
-			loc.plugin.version       = "2.6.1";
+			loc.plugin.version       = "2.6.2";
 			loc.plugin.compatibility = "1.1.8, 1.3, 1.3.1";
 			loc.plugin.project       = "https://github.com/ellor1138/Localizator";
 			loc.plugin.documentation = "https://github.com/ellor1138/Localizator/wiki";
@@ -978,6 +1024,8 @@
 				loc.text = $replaceVariable(loc.text);
 			}
 
+			loc.text = $toHTMLEntity(text=loc.text);
+
 			if ( !application.localizator.localizatorGetLocalizationFromFile && ListLen(application.localizator.localizatorSettings.languages.database) && ListFindNoCase(application.localizator.localizatorSettings.languages.database, loc.localeid) ) {
 				loc.database.check = $checkTextInDatabase(loc.text, loc.localeid);
 				
@@ -1020,6 +1068,8 @@
 			if ( loc.isDynamic ) {
 				loc.text = $replaceVariable(loc.text);
 			}
+
+			loc.text = $toHTMLEntity(text=loc.text);
 
 			if ( ListLen(application.localizator.localizatorSettings.languages.database) ) {
 				loc.database.check = $checkTextInDatabase(loc.text);
@@ -1149,6 +1199,64 @@
 			} else {
 				return false;
 			}
+		}
+
+		/* -------------------------------------------------------------------
+		 * @hint Convert symbols to their HTML entities
+		 * -------------------------------------------------------------------
+		*/
+		public function $toHTMLEntity(struct form, string text) {
+			var loc = {};
+
+			if ( application.localizator.localizatorConvertHTMLEntities ) {
+				if ( StructKeyExists(arguments, "form") ) {
+					loc.form = Duplicate(arguments.form);
+					loc.keys = StructKeyList(loc.form);
+
+					for ( loc.i=1; loc.i <= ListLen(loc.keys); loc.i++ ) {
+						loc.key  = ListGetAt(loc.keys, loc.i);
+						loc.text = $getHTMLEntity(loc.form[loc.key]);
+						// loc.text = ReplaceNoCase(ReplaceNoCase(loc.form[loc.key], '"', '&quot;', "ALL"), "'", "&apos;", "ALL");
+
+						loc.form["#loc.key#"] = loc.text;
+					}
+
+					return loc.form;
+				
+				} else if ( StructKeyExists(arguments, "text") ) {
+					loc.text = $getHTMLEntity(arguments.text);
+
+					return loc.text;
+				}
+			
+			} else {
+				if ( StructKeyExists(arguments, "form") ) {
+					return arguments.form;
+				
+				} else {
+					return arguments.text;
+				} 
+			}			
+		}
+
+		/* -------------------------------------------------------------------
+		 * @hint Get HTML entity
+		 * -------------------------------------------------------------------
+		*/
+		public function $getHTMLEntity(required string text) {
+			var loc = {};
+
+			loc.text     = arguments.text;
+			loc.entities = application.localizator.localizatorHTMLEntities;
+
+			for ( loc.i=1; loc.i <= ArrayLen(loc.entities); loc.i++ ) {
+				loc.symbol = loc.entities[loc.i].symbol;
+				loc.entity = loc.entities[loc.i].entity;
+
+				loc.text = ReplaceNoCase(loc.text, loc.symbol, loc.entity, "ALL");
+			}
+
+			return loc.text;
 		}
 
 		/* --------------------------

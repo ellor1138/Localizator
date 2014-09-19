@@ -4,10 +4,11 @@
 			<ul class="list-unstyled">
 				<li>
 					<div class="alert alert-success alert-sm">
-						<p><span class="label label-success">New in 2.6.1</span></p>
-						<p>You can add a "redirect" struct with the addTranslation(), updateTranslation() and deleteTranslation() functions. This will overwrite the default redirectTo(back=true) function. See examples below.</p>
+						<p><span class="label label-success">New in 2.6.2</span></p>
+						<p>You can add a "silent" argument to the params struct to prevent redirection with addTranslation(), updateTranslation() and deleteTranslation() functions. This will overwrite the default redirectTo() function. See examples below.</p>
 					</div>
 				</li>
+				
 				<li><b>addTranslation(required struct params)</b>
 					<div style="margin:10px 0;">
 						<p>This function will add a translation.</p>
@@ -17,7 +18,7 @@
 						<dt>How to use it in your controller:</dt>
 						<dd>
 							public void function add() {<br>
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.redirect = {route="route", controller="controller", action="action"};<br><br>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.silent = true; <strong><u>OR</u></strong> params.redirect = {route="route", controller="controller", action="action"};<br><br>
 
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localizationForm = addTranslation(params);<br>		
 							}
@@ -33,7 +34,7 @@
 						<dt>How to use it in your controller:</dt>
 						<dd>
 							public void function update() {<br>
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.redirect = {route="route", controller="controller", action="action"};<br><br>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.silent = true; <strong><u>OR</u></strong> params.redirect = {route="route", controller="controller", action="action"};<br><br>
 
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localizationForm = updateTranslation(params);<br>		
 							}
@@ -49,7 +50,7 @@
 						<dt>How to use it in your controller:</dt>
 						<dd>
 							public void function delete() {<br>
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.redirect = {route="route", controller="controller", action="action"};<br><br>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;params.silent = true; <strong><u>OR</u></strong> params.redirect = {route="route", controller="controller", action="action"};<br><br>
 
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localizationForm = deleteTranslation(params);<br>		
 							}

@@ -2,6 +2,14 @@
 	<div class="tab-pane" id="Log">
 		<div class="pad">
 			<dl class="dl-horizontal">
+				<dt>Version 2.6.2</dt>
+				<dd>September 19, 2014
+					<ul>
+						<li>New settings to convert symbols to their HTML entities</li>
+						<li>New "<i>silent</i>" argument to prevent redirection when adding, updating or deleting a translation.</li>
+						<li>Bug fixes with the database and file editor</li>
+					</ul>
+				</dd>
 				<dt>Version 2.6.1</dt>
 				<dd>August 26, 2014
 					<ul>

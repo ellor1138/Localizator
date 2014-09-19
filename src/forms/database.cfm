@@ -21,11 +21,11 @@
 					<label>Text</label>
 					
 					<cfif localizationForm.isNew()>
-						<input type="text" class="form-control" name="localizationForm[text]" value="#isDefined('localizationForm.text') ? localizationForm.text : ''#" />
+						<input type="text" class="form-control" name="localizationForm[text]" value="#isDefined('localizationForm.text') ? HTMLEditFormat(localizationForm.text) : ''#" />
 					
 					<cfelse>
-						<input type="hidden" name="localizationForm[text]" value="#isDefined('localizationForm.text') ? localizationForm.text : ''#">
-						<input type="text" class="form-control" name="bogus" value="#isDefined('localizationForm.text') ? localizationForm.text : ''#" disabled />
+						<input type="hidden" name="localizationForm[text]" value="#isDefined('localizationForm.text') ? HTMLEditFormat(localizationForm.text) : ''#">
+						<input type="text" class="form-control" name="bogus" value="#isDefined('localizationForm.text') ? HTMLEditFormat(localizationForm.text) : ''#" disabled />
 					</cfif>
 				</div>
 
@@ -34,7 +34,7 @@
 						<div class="form-group">
 							<label>#GetLocaleDisplayName(loc.language, getLocale())#</label>
 
-							<input type="text" class="form-control" name="localizationForm[#loc.language#]" value="#isDefined('localizationForm.#loc.language#') ? localizationForm[loc.language] : ''#" />
+							<input type="text" class="form-control" name="localizationForm[#loc.language#]" value="#isDefined('localizationForm') AND StructKeyExists(localizationForm, loc.language) ? HTMLEditFormat(localizationForm[loc.language]) : ''#" />
 							
 							<cfif loc.language EQ ListLast(loc.config.settings.languages.database)>
 								<input type="submit" value="#txtButton#" class="btn btn-default" style="margin-top:20px;">

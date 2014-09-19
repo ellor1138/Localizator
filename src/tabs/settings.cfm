@@ -5,7 +5,35 @@
 				<span class="label label-danger">Important</span> &nbsp;&nbsp;All the plugin settings should be place in your config/settings.cfm files.
 			</div>
 
+			<ul class="list-unstyled">
+				<li>
+					<div class="alert alert-success alert-sm">
+						<p><span class="label label-success">New in 2.6.2</span></p>
+						<p>New settings to convert symbols to their HTML entities. See below.</p>
+					</div>
+				</li>
+			</ul>
+
 			<dl>
+				<dt>Convert symbols to their HTML entities <span class="label label-success">New in 2.6.2</span></dt>
+				<dd>You can configure the plugin to convert symbols to their HTML entities.
+					<ul>
+						<li><u>set(localizatorConvertHTMLEntities=true)</u></li>
+					</ul>
+				</dd>
+
+				<dt>Symbols/HTML entities array <span class="label label-success">New in 2.6.2</span></dt>
+				<dd>You can use your own symbols/HTML entities. Simpy create an array of structs like this:
+					<p style="margin:10px 0 10px 24px;">
+						ArrayEntities&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= [];<br>
+						ArrayEntities[1] = {symbol="&commat;", entity="&amp;commat;"};<br>
+						ArrayEntities[2] = {symbol="&copy;", entity="&amp;copy;"};
+					</p>
+					<ul>					
+						<li><u>set(localizatorHTMLEntities=ArrayEntities)</u></li>
+					</ul>
+				</dd>
+
 				<dt>Default language</dt>
 				<dd>The plugin use the default server Locale ID as the default language. You can use a different Locale ID by using this setting.
 					<ul>
