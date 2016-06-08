@@ -1350,8 +1350,11 @@
 			loc.languages = "";
 
 			if ( loc.isAvailableDatabaseTable ) {
-				loc.query = New dbinfo(datasource=arguments.dataSourceName, table=arguments.localizatorLanguageTable).columns();
-				
+				if (StructKeyExists(server, "railo")){
+					dbinfo name="loc.query" type="columns" datasource=arguments.dataSourceName table=arguments.localizatorLanguageTable;
+				} else {
+					loc.query = New dbinfo(datasource=arguments.dataSourceName, table=arguments.localizatorLanguageTable).columns();
+				}
 				loc.list      = ValueList(loc.query.column_name);
 				loc.languages = $validateLanguagesList(loc.list, arguments.localizatorServerLocales);
 			}
@@ -1453,8 +1456,12 @@
 
 			if ( loc.isAvailableDatabase ) {
 				try {
-					loc.info = New dbinfo(datasource=arguments.dataSourceName, username=loc.application["dataSourceUserName"], password=loc.application["dataSourcePassword"]);
-					
+					if (StructKeyExists(server, "railo")){
+						dbinfo name="loc.tables" type="tables" datasource=arguments.dataSourceName username=loc.application["dataSourceUserName"] password=loc.application["dataSourcePassword"];
+					} else {
+						loc.info = New dbinfo(datasource=arguments.dataSourceName, username=loc.application["dataSourceUserName"], password=loc.application["dataSourcePassword"]);
+						loc.tables = loc.info.tables();
+					}
 					loc.tables = loc.info.tables();
 					loc.tables = ValueList(loc.tables.table_name);
 
@@ -1479,8 +1486,11 @@
 			loc.application = $getWheelsApplication();
 
 			try {
-				loc.info = New dbinfo(datasource=arguments.dataSourceName, username=loc.application["dataSourceUserName"], password=loc.application["dataSourcePassword"]).version();
-
+				if (StructKeyExists(server, "railo")){
+					dbinfo name="loc.info" type="version" datasource=arguments.dataSourceName username=loc.application["dataSourceUserName"] password=loc.application["dataSourcePassword"];
+				} else {
+					loc.info = New dbinfo(datasource=arguments.dataSourceName, username=loc.application["dataSourceUserName"], password=loc.application["dataSourcePassword"]).version();
+				}
 				return true;
 			
 			} catch ( any error ) {
