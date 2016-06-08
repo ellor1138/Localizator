@@ -912,17 +912,13 @@
 				loc.localizatorHTMLEntities[1] = {symbol='"', entity="&quot;"};
 			}
 
-			if ( StructKeyExists(application[temp.wheels], "localizatorServerLocales") ) {
-				loc.localizatorServerLocales = application[temp.wheels].localizatorServerLocales;
-			} else {
-				// CREATE LIST OF AVAILABLE SERVER LOCALE ID
-				temp.serverLocales = CreateObject('java','java.util.Locale').getAvailableLocales();
+			// CREATE LIST OF AVAILABLE SERVER LOCALE ID
+			temp.serverLocales = CreateObject('java','java.util.Locale').getAvailableLocales();
 
-				loc.localizatorServerLocales = "";
+			loc.localizatorServerLocales = "";
 
-				for (temp.i=1; temp.i <= ArrayLen(temp.serverLocales); temp.i++) {
-					loc.localizatorServerLocales = ListAppend(loc.localizatorServerLocales, temp.serverLocales[temp.i].toString());
-				}
+			for (temp.i=1; temp.i <= ArrayLen(temp.serverLocales); temp.i++) {
+				loc.localizatorServerLocales = ListAppend(loc.localizatorServerLocales, temp.serverLocales[temp.i].toString());
 			}
 
 			// Create plugin settings struct
