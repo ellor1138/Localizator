@@ -210,6 +210,33 @@
 				}
 			}	
 		}
+		
+		/* ------------------------------------------------------------
+		 * @hint Return translated error messages for errorMessageOn
+		 * ------------------------------------------------------------
+		*/
+		public function errorMessageOn(required string objectName, required string property, string prependText, string appendText, string wrapperElement, string class) {
+			var loc = {};
+
+			core.$args(name="errorMessageOn", args=arguments);
+
+			loc.object = core.$getObject(arguments.objectName);
+
+			if ( get("showErrorInformation") && !IsObject(loc.object) ) {
+				core.$throw(type="Wheels.IncorrectArguments", message="The `#arguments.objectName#` variable is not an object.");
+			}
+
+			loc.error = loc.object.errorsOn(arguments.property);
+			loc.rv    = "";
+
+			if ( !ArrayIsEmpty(loc.error) ) {
+				loc.content = arguments.prependText & l(loc.error[1].message) & arguments.appendText;
+
+				loc.rv = core.$element(name=arguments.wrapperElement, skip="objectName,property,prependText,appendText,wrapperElement", content=loc.content, attributes=arguments);
+			}
+
+			return loc.rv;
+		}
 
 		/* -------------------------------------------------------------------
 		 * @hint  Validate language list against server Locale ID (Front end)
