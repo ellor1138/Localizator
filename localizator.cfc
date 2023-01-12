@@ -309,7 +309,7 @@
 
 			loc.queryNew = QueryNew("text,firstLetter", "VarChar,VarChar");
 
-			// Get defailt language translation file (if found)
+			// Get defailt language translation file (if found) test
 			if ( YesNoFormat(FindNoCase(application.localizator.localizatorSettings.languageDefault, application.localizator.localizatorSettings.files.locales)) ) {
 				loc.file = ListToArray(application.localizator.localizatorSettings.files.locales);
 
