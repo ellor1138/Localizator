@@ -1309,23 +1309,34 @@
 		public string function $replaceVariable(required string text, string original) {
 			var loc = {};
 
-			if ( arguments.text DOES NOT CONTAIN "{variable}" && (arguments.text CONTAINS "{" && arguments.text CONTAINS "}") ) {
+			if ( !StructKeyExists(arguments, "original") || !Len(arguments.original) ) {
+				// Find all occurrences of {something}
 				loc.textBetweenDynamicText = ReMatch("{(.*?)}", arguments.text);
-				loc.iEnd = ArrayLen(loc.textBetweenDynamicText);
-				
-				for (loc.i = 1; loc.i <= loc.iEnd; loc.i++) {
-					loc.text = Replace(arguments.text, loc.textBetweenDynamicText[loc.i], "{variable}", "all");
+
+				loc.text = arguments.text;
+
+				// Replace each {something} with {variable}
+				for (loc.i = 1; loc.i <= ArrayLen(loc.textBetweenDynamicText); loc.i++) {
+					loc.text = Replace(loc.text, loc.textBetweenDynamicText[loc.i], "{variable}", "one");
 				}
-			
-			} else if (arguments.text CONTAINS "{variable}") {
+
+			} else if ( arguments.text CONTAINS "{variable}" ) {
+				// Find all occurrences of {variable}
 				loc.textBetweenDynamicText = ReMatch("{(.*?)}", arguments.original);
-				loc.text = Replace(arguments.text, "{variable}", loc.textBetweenDynamicText[1]);
+
+				loc.text = arguments.text;
+
+				// Replace each {variable} with {original value}
+				for ( loc.i = 1; loc.i <= ArrayLen(loc.textBetweenDynamicText); loc.i++ ) {
+					loc.text = Replace(loc.text, "{variable}", loc.textBetweenDynamicText[loc.i], "one");
+				}
+
 				loc.text = ReplaceList(loc.text, "{,}", "");
-			
+
 			} else {
 				loc.text = arguments.text;
 			}
-			
+
 			return loc.text;
 		}
 
@@ -1521,3 +1532,4 @@
 		}
 	}
 </cfscript>
+
