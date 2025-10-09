@@ -27,6 +27,7 @@ Problems or issues with this plugin can be found at https://github.com/ellor1138
 * ColdFusion on Wheels 1.1.8
 
 ##### I have tested this plugin on the following CFML engines:
+* Adobe ColdFusion 2023
 * Adobe ColdFusion 2018
 * Adobe ColdFusion 9
 
@@ -54,3 +55,4 @@ distributed under the License is distributed on an "AS IS" basis,
 without warranties or conditions of any kind, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
